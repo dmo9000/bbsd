@@ -21,7 +21,13 @@ int main(int argc, char *argv[])
 	memset(&buf_out, 0, 65536);
 	printf("filedes[1] = %d\n", filedes[1]);
 	r = read(filedes[1], &buf_out, 65536);
-	printf("read %d bytes\n", r);
+	while (r > 0) {
+		printf("[read %d bytes]\n", r);
+		write(0, &buf_out, r);
+		memset(&buf_out, 0, 65536);
+		r = read(filedes[1], &buf_out, 65536);
+		}
+
 	exit(0);
 }
 
