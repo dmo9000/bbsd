@@ -14,7 +14,7 @@ int main(int argc, char *argv[])
 	pid_t p = 0;
 	int r = 0;
 	argv[0] = "/usr/bin/fortune";
-	argv[1] = "-l";
+	argv[1] = "-c";
 	argv[2] = NULL;
 	p = opencmd(&filedes, "/usr/bin/fortune", argv); 
 	printf("started process with pid %u\n", p);
