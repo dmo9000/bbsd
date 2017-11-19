@@ -1,14 +1,27 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <unistd.h>
+#include <string.h>
 #include <sys/types.h>
 #include <sys/wait.h>
 #include <stdint.h>
 
+static char buf_out[65536];
 
 int main(int argc, char *argv[])
 {
-	printf("Starting ...\n");
+	int filedes[2];
+	pid_t p = 0;
+	int r = 0;
+	argv[0] = "/usr/bin/fortune";
+	argv[1] = "-l";
+	argv[2] = NULL;
+	p = opencmd(&filedes, "/usr/bin/fortune", argv); 
+	printf("started process with pid %u\n", p);
+	memset(&buf_out, 0, 65536);
+	printf("filedes[1] = %d\n", filedes[1]);
+	r = read(filedes[1], &buf_out, 65536);
+	printf("read %d bytes\n", r);
 	exit(0);
 }
 
@@ -31,6 +44,11 @@ pid_t opencmd(int *pipes, const char *path, char *const *const argv)
         goto error_out;
     if (pipe(err))
         goto error_err;
+
+	printf("in[0] = %d\n", in[0]);
+	printf("in[1] = %d\n", in[1]);
+	printf("out[0] = %d\n", out[0]);
+	printf("out[1] = %d\n", out[1]);
 
     /*
      * Starting actual processing ...
@@ -57,19 +75,27 @@ pid_t opencmd(int *pipes, const char *path, char *const *const argv)
          pipes[0] = in[1];  /* Write to child stdin */
          pipes[1] = out[0]; /* Read child stdout */
          pipes[2] = err[0]; /* Read child stderr */
+				printf("returing pid %d\n", pid);
+				printf("pipes[0] = %d\n", pipes[0]);
+				printf("pipes[1] = %d\n", pipes[1]);
+				printf("pipes[2] = %d\n", pipes[2]);
          return pid;
     }
 /* This section is never be reached without a goto */
   error_fork:
+		printf("Forking error.\n");
     close(err[0]);
     close(err[1]);
   error_err:
+		printf("Error on connecting stderr.\n");
     close(out[0]);
     close(out[1]);
   error_out:
+		printf("Error on connecting stdout.\n");
     close(in[0]);
     close(in[1]);
   error_in:
+		printf("Error on connecting stdin.\n");
     return -1;
 }
 
