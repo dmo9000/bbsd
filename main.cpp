@@ -7,6 +7,7 @@
 #include <fcntl.h>
 #include <unistd.h>
 #include "nvt.h"
+#include "subprocess.h"
 
 using std::cout;
 using std::endl;
@@ -21,7 +22,7 @@ static void myerror(const char *msg);
 /* this can all go into a controller class when more mature */
 
 Pipeline* telnet_acceptor = NULL;
-Pipeline* IOPipelines[MAX_PIPELINES];
+//Pipeline* IOPipelines[MAX_PIPELINES];
 
 vector<Pipeline*> SelectablePipelines;
 fd_set socketset;
@@ -108,6 +109,7 @@ int RunIOSelectSet()
     socklen_t clilen = 0;
     int newsockfd = -1;
     NVT *new_nvt = NULL;
+    char *myargv[64];
 
     int s = 0;
 //    cout << "RunIOSelectSet()" << endl;
@@ -135,6 +137,24 @@ int RunIOSelectSet()
                     if (!RegisterForIO((Pipeline*)(new_nvt))) {
                         cout << "Couldn't Register NVT for I/O\n" << endl;
                     };
+
+
+                    myargv[0] = (char *) "/bin/bash";
+                    myargv[1] = (char *) "-i";
+                    myargv[2] = NULL;
+                    shell = new Subprocess();
+                    child_process = shell->StartProcess(myargv[0], myargv);
+                    cout << "child process pid is " << child_process << endl;
+                    r = shell->GetPipeFD(0, 0);
+                    w = shell->GetPipeFD(0, 1);
+                    shell->RegisterSocket(r, w);
+
+
+
+
+
+
+
                 } else {
                     cout << "[" << r << "] input received" << endl;
                     PerformReadIO(*iter);
@@ -156,21 +176,21 @@ int RunIOSelectSet()
                 break;
             }
         }
-    break;
-case -1:
-    /* I/O error */
-    perror("select()");
-    exit(1);
-    break;
-default:
-    cout << "Unexpected return code " << s << " received from select()" << endl;
-    exit(1);
-    break;
-}
+        break;
+    case -1:
+        /* I/O error */
+        perror("select()");
+        exit(1);
+        break;
+    default:
+        cout << "Unexpected return code " << s << " received from select()" << endl;
+        exit(1);
+        break;
+    }
 
-/* all okay */
+    /* all okay */
 
-return 1;
+    return 1;
 }
 
 int main(int argc, char *argv[])
@@ -181,12 +201,27 @@ int main(int argc, char *argv[])
     int newsockfd = -1;
     int i = 0;
     int flags = 0;
+    pid_t child_process = 0;
+    Subprocess *shell = NULL;
+    char *myargv[64];
+    int r =0, w = 0;
 
-    /* initalize pipeline table */
+    /*
+        myargv[0] = (char *) "/bin/bash";
+        myargv[1] = (char *) "-i";
+        myargv[2] = NULL;
+        shell = new Subprocess();
+        child_process = shell->StartProcess(myargv[0], myargv);
+        cout << "child process pid is " << child_process << endl;
+        r = shell->GetPipeFD(0, 0);
+        w = shell->GetPipeFD(0, 1);
+        shell->RegisterSocket(r, w);
+    */
+    /*
+    while (1) {
 
-    for (i = 0; i < MAX_PIPELINES; i++) {
-        IOPipelines[i] = NULL;
-    }
+            }
+    */
 
     cout << "Initializing listener socket on port " << LISTEN_PORT << endl;
 

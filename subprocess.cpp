@@ -4,11 +4,21 @@
 using std::cout;
 using std::endl;
 
+#define WRITE_FD 1
+
+//#define PARENT_READ_FD  ( pipes[PARENT_READ_PIPE][READ_FD]   )
+//#define PARENT_WRITE_FD ( pipes[PARENT_WRITE_PIPE][WRITE_FD] )
+//#define CHILD_READ_FD   ( pipes[PARENT_WRITE_PIPE][READ_FD]  )
+//#define CHILD_WRITE_FD  ( pipes[PARENT_READ_PIPE][WRITE_FD]  )
+//
+#define PARENT_READ_FD   pipes[PARENT_READ_PIPE][READ_FD]   
+#define PARENT_WRITE_FD  pipes[PARENT_WRITE_PIPE][WRITE_FD] 
+#define CHILD_READ_FD    pipes[PARENT_WRITE_PIPE][READ_FD]  
+#define CHILD_WRITE_FD   pipes[PARENT_READ_PIPE][WRITE_FD]  
 
 Subprocess::Subprocess()
 {
     cout << "Subprocess created" << endl;
-
 }
 
 Subprocess::~Subprocess()
@@ -16,21 +26,22 @@ Subprocess::~Subprocess()
     cout << "Subprocess destroyed" << endl;
 }
 
+int Subprocess::GetPipeFD(int pair, int channel)
+{
+    return pipes[pair][channel];
+}
+
 int Subprocess::RegisterSocket(int r, int w)
 {
     int flags = 0;
     cout << "Subprocess::RegisterSocket" << "(read=" << r << ", write=" << w << ")" << endl;
-
     /* for an Subprocess we use non-blocking I/O, since telnet protocol can be a little adhoc */
-
     flags = fcntl(r, F_GETFL, 0);
     fcntl(r, F_SETFL, flags | O_NONBLOCK);
     flags = fcntl(w, F_GETFL, 0);
     fcntl(w, F_SETFL, flags | O_NONBLOCK);
     cout << "Subprocess set sockets to non-blocking mode" << endl;
-
     SetPipelineType(Pipeline_Type::PIPELINE_SUBPROCESS);
-
     return Pipeline::RegisterSocket(r, w);
 }
 
@@ -50,10 +61,57 @@ int Subprocess::pWrite()
     return w;
 }
 
-pid_t Subprocess::StartProcess(int *pipes, const char *path, char *const *const argv)
+//pid_t Subprocess::StartProcess(int *pipes, const char *path, char *const *const argv)
+//
+pid_t Subprocess::StartProcess(const char *path, char **argv)
 {
-	cout << "StartProcess(%s)" << path << endl;	
+    pid_t child_pid = 0;
+    int flags = 0;
+    int p = 0;
 
+    cout << "StartProcess(" << path << ")" << endl;
+    p = pipe(pipes[PARENT_READ_PIPE]);
+    printf("Create parent read pipe = %d\n", p);
+    pipe(pipes[PARENT_WRITE_PIPE]);
+    printf("Create parent write pipe = %d\n", p);
+
+    child_pid = fork();
+    if(!child_pid) {
+        /* we are within the child process here */
+        //argv = { "/bin/bash", "-i", NULL };
+        argv[0] = (char *) "/bin/bash";
+        argv[1] = (char *) "-i"; 
+        argv[2] = NULL;
+        p = dup2(CHILD_READ_FD, STDIN_FILENO);      
+        cout << "child: read_fd = "  << p << endl;
+        p = dup2(CHILD_WRITE_FD, STDOUT_FILENO);
+        cout << "child: write_fd = "  << p << endl;
+        /* Close fds not required by child. Also, we don't
+           want the exec'ed program to know these existed */
+        cout << "child: closing CHILD_READ_FD = " << CHILD_READ_FD << endl;
+        close(CHILD_READ_FD);
+        cout << "child: closing CHILD_WRITE_FD = " << CHILD_WRITE_FD << endl;
+        close(CHILD_WRITE_FD);
+        cout << "child: closing PARENT_READ_FD = " << PARENT_READ_FD << endl;
+        close(PARENT_READ_FD);
+        cout << "child: closing PARENT_WRITE_FD = " << PARENT_WRITE_FD << endl;
+        close(PARENT_WRITE_FD);
+        close(0);
+        close(1);
+        close(2);
+        execv(argv[0], argv);
+        /* never return */
+    } else {
+        /* we are in the parent here */
+        /* close fds not required by parent */
+        cout << "parent: closing CHILD_READ_FD = " << CHILD_READ_FD << endl;
+        close(CHILD_READ_FD);
+        cout << "parent: closing CHILD_WRITE_FD = " << CHILD_WRITE_FD << endl;
+        close(CHILD_WRITE_FD);
+        flags = fcntl(PARENT_READ_FD, F_GETFL, 0);
+        fcntl(PARENT_READ_FD, F_SETFL, flags | O_NONBLOCK);
+    }
+    return child_pid;
 }
 
 
