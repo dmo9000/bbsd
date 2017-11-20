@@ -41,7 +41,7 @@ main()
      
     if(!fork()) {
 //        char *argv[]={ "/usr/bin/bc", "-q", 0};
-        char *argv[]={ "/bin/bash", NULL };
+        char *argv[]={ "/usr/bin/zsh", NULL };
  
         dup2(CHILD_READ_FD, STDIN_FILENO);
         dup2(CHILD_WRITE_FD, STDOUT_FILENO);
