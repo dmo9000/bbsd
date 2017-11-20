@@ -15,4 +15,4 @@ opencommand:	opencommand.o
 	g++ -c $(CXX_FLAGS) $(FLAGS) -o $@ $<
 
 clean:
-	rm -f main opencommand *.o
+	rm -f main open2 opencommand *.o
