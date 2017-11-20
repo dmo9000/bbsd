@@ -2,31 +2,44 @@
 #include <stdlib.h>
 #include <unistd.h>
 #include <string.h>
+#include <fcntl.h>
 #include <sys/types.h>
 #include <sys/wait.h>
 #include <stdint.h>
+#include <errno.h>
 
 static char buf_out[65536];
 
 int main(int argc, char *argv[])
 {
+	int flags = 0;
 	int filedes[2];
 	pid_t p = 0;
 	int r = 0;
-	argv[0] = "/usr/bin/fortune";
-	argv[1] = "-c";
+	argv[0] = "/usr/bin/bash";
+	argv[1] = "README.md";
 	argv[2] = NULL;
-	p = opencmd(&filedes, "/usr/bin/fortune", argv); 
+	p = opencmd(&filedes, "/usr/bin/bash", argv); 
 	printf("started process with pid %u\n", p);
 	memset(&buf_out, 0, 65536);
 	printf("filedes[1] = %d\n", filedes[1]);
+
+	flags = fcntl(filedes[1], F_GETFL, 0);
+	fcntl(filedes[1], F_SETFL, flags | O_NONBLOCK);
+
 	r = read(filedes[1], &buf_out, 65536);
-	while (r > 0) {
-		printf("[read %d bytes]\n", r);
-		write(0, &buf_out, r);
+	while (r > 0 || (r == -1 && errno == EAGAIN)) {
+		if (r > 0) {
+			printf("[read %d bytes]\n", r);
+			write(0, &buf_out, r);
+			}
 		memset(&buf_out, 0, 65536);
 		r = read(filedes[1], &buf_out, 65536);
 		}
+	printf("\nr == %d\n", r);
+	while (1) {
+
+			}
 
 	exit(0);
 }

@@ -50,4 +50,11 @@ int Subprocess::pWrite()
     return w;
 }
 
+pid_t Subprocess::StartProcess(int *pipes, const char *path, char *const *const argv)
+{
+	cout << "StartProcess(%s)" << path << endl;	
+
+}
+
+
 
