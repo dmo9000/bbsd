@@ -2,6 +2,7 @@
 #include <stdio.h>
 #include <fcntl.h>
 #include <string.h>
+#include <errno.h>
  
 /* since pipes are unidirectional, we need two pipes.
    one for data to flow from parent's stdout to child's
@@ -41,7 +42,7 @@ main()
      
     if(!fork()) {
 //        char *argv[]={ "/usr/bin/bc", "-q", 0};
-        char *argv[]={ "/usr/bin/zsh", NULL };
+        char *argv[]={ "/bin/bash", "-i", NULL };
  
         dup2(CHILD_READ_FD, STDIN_FILENO);
         dup2(CHILD_WRITE_FD, STDOUT_FILENO);
@@ -66,16 +67,19 @@ main()
 
 		flags = fcntl(PARENT_READ_FD, F_GETFL, 0);
 		fcntl(PARENT_READ_FD, F_SETFL, flags | O_NONBLOCK);
-
     memset(&buf_out, 0, 65536);
     r = read(PARENT_READ_FD, &buf_out, 65536);
 
 		while (r != 0) {
     if (r > 0) {
-    	  printf("[read %d bytes]\n", r);
+    	  //printf("[read %d bytes]\n", r);
      		write(0, &buf_out, r);
       	} else {
-				//printf("r = %d\n", r);
+				if (errno != EAGAIN) {
+					printf("r = %d\n", r);
+					perror("read");
+					exit(1);
+					}
 				}
     memset(&buf_out, 0, 65536);
     r = read(PARENT_READ_FD, &buf_out, 65536);
