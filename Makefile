@@ -1,5 +1,5 @@
 OBJS = main.o pipeline.o subprocess.o nvt.o
-FLAGS = -g -ggdb
+FLAGS = -g -ggdb -std=c++11
 
 
 all: opencommand pmain yourname
