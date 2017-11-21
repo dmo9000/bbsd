@@ -237,8 +237,8 @@ int RunIOSelectSet()
                     };
 
 
-                    myargv[0] = (char *) "/bin/bash";
-                    myargv[1] = (char *) "-i";
+                    myargv[0] = (char *) "/usr/bin/cat";
+                    myargv[1] = (char *) "data/fruit.ans";
                     myargv[2] = NULL;
                     shell = new Subprocess();
                     child_process = shell->StartProcess(myargv[0], myargv);

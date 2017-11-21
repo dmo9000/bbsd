@@ -83,9 +83,20 @@ pid_t Subprocess::StartProcess(const char *path, char **argv)
         //argv = { "/bin/bash", "-i", NULL };
         //argv[0] = (char *) "/usr/bin/bash";
         //argv[1] = (char *) "-i"; 
-        argv[0] = (char *) "/usr/bin/fortune";
-        argv[1] = (char *) "-l"; 
-        argv[2] = NULL;
+        //argv[0] = (char *) "/usr/bin/fortune";
+        //argv[1] = (char *) "-l"; 
+        //argv[2] = NULL;
+        //argv[0] = (char *) "./yourname";
+        //argv[1] = NULL; 
+
+        //argv[0] = (char *) "/usr/bin/frotz";
+        //argv[1] = (char *) "data/ZORK1.DAT";
+        //argv[2] = NULL;
+
+        //argv[1] = (char *) "data/fruit.ans";
+        //argv[2] = NULL;
+
+
         p = dup2(CHILD_READ_FD, STDIN_FILENO);      
         //cout << "child: read_fd = "  << p << endl;
         p = dup2(CHILD_WRITE_FD, STDOUT_FILENO);
@@ -103,8 +114,16 @@ pid_t Subprocess::StartProcess(const char *path, char **argv)
 
         //close(0);
         //close(1);
-        //close(2);
-        execv(argv[0], argv);
+        close(2);
+        if (execv(argv[0], argv) == -1) {
+            cout << "Couldn't start subprocess" << endl;
+            perror("execv");
+            GetNextPipeline()->SetState(STATE_DISCONNECTED);
+            GetNextPipeline()->SetReadyForDeletion();
+            SetState(STATE_DISCONNECTED);
+            SetReadyForDeletion();
+            exit(255);
+            };
         /* never return */
     } else {
         /* we are in the parent here */

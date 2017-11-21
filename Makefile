@@ -2,7 +2,10 @@ OBJS = main.o pipeline.o subprocess.o nvt.o
 FLAGS = -g -ggdb
 
 
-all: opencommand pmain
+all: opencommand pmain yourname
+
+yourname: yourname.o
+	gcc -o yourname yourname.o
 
 pmain:	$(OBJS)	
 	g++ $(FLAGS) -o $@ $(OBJS)
