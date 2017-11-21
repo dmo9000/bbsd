@@ -115,6 +115,42 @@ void ShutdownIO()
 }
 
 
+int PerformShutdown(Pipeline *p)
+{
+    NVT *nvt_ptr = NULL;
+    Subprocess *sub_ptr = NULL;
+    enum Pipeline_Type t;
+    int r = 0;
+    t = p->GetPipelineType();
+
+
+    switch(t) {
+    case Pipeline_Type::PIPELINE_RAW:
+        p->Shutdown();
+        return 1;
+        break;
+    case Pipeline_Type::PIPELINE_NVT:
+        nvt_ptr = (NVT*) p;
+        nvt_ptr->Shutdown();
+        return 1;
+        break;
+    case Pipeline_Type::PIPELINE_SUBPROCESS:
+        sub_ptr = (Subprocess*) p;
+        sub_ptr->Shutdown();
+        return 1;
+        break;
+    default:
+        cout << "+++ Unknown Pipeline_Type" << endl;
+        ShutdownIO();
+        exit(1);
+        break;
+    }
+
+    return -1;
+
+}
+
+
 int PerformReadIO(Pipeline *p)
 {
     NVT *nvt_ptr = NULL;

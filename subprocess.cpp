@@ -1,5 +1,6 @@
 #include <iostream>
 #include <fcntl.h>
+#include <sys/wait.h>
 #include "subprocess.h"
 using std::cout;
 using std::endl;
@@ -66,7 +67,6 @@ int Subprocess::pWrite()
 //
 pid_t Subprocess::StartProcess(const char *path, char **argv)
 {
-    pid_t child_pid = 0;
     int flags = 0;
     int p = 0;
     int i = 0, j = 0;
@@ -149,4 +149,15 @@ pid_t Subprocess::StartProcess(const char *path, char **argv)
 }
 
 
-
+void Subprocess::Shutdown()
+{
+    pid_t c = 0;
+    int wstatus;
+    int options = WNOHANG; 
+    cout << "Subprocess:Shutdown()" << endl;
+    Pipeline::Shutdown();
+    cout << "Reaping child pid " << child_pid;
+    c =  waitpid(child_pid, &wstatus, options);  
+    cout << "Reap status: " << c << endl;
+    return;
+}

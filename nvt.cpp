@@ -56,4 +56,12 @@ int NVT::pWrite()
     return w;
 }
 
+void NVT::Shutdown()
+{
+    cout << "NVT::Shutdown()" << endl;
+    Pipeline::Shutdown();
+    return;
+
+}
+
 

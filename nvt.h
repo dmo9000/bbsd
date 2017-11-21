@@ -15,4 +15,5 @@ public:
     int RegisterSocket(int r, int w);
     int pRead();
     int pWrite();
+    void Shutdown();
 };

@@ -28,6 +28,7 @@ protected:
 
 private:
     int pipes[NUM_PIPES][2];
+    pid_t child_pid = -1;
 
 public:
     Subprocess();
@@ -38,5 +39,6 @@ public:
     int pRead();
     int pWrite();
     int GetPipeFD(int pair, int channel);
+    void Shutdown();
     
 };
