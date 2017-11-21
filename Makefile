@@ -2,9 +2,9 @@ OBJS = main.o pipeline.o subprocess.o nvt.o
 FLAGS = -g -ggdb
 
 
-all: opencommand main
+all: opencommand pmain
 
-main:	$(OBJS)	
+pmain:	$(OBJS)	
 	g++ $(FLAGS) -o $@ $(OBJS)
 
 opencommand:	opencommand.o
@@ -15,4 +15,4 @@ opencommand:	opencommand.o
 	g++ -c $(CXX_FLAGS) $(FLAGS) -o $@ $<
 
 clean:
-	rm -f main open2 opencommand *.o
+	rm -f pmain open2 opencommand *.o

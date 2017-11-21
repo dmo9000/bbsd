@@ -2,6 +2,7 @@
 
 #include <unistd.h>
 #include <stdint.h>
+#include <stdbool.h>
 
 #define BUFSIZE 65536
 
@@ -34,8 +35,7 @@ private:
     uint16_t wsize = 0;
     uint8_t rbuf[BUFSIZE];
     uint8_t wbuf[BUFSIZE];
-    
-
+    bool selected = false; 
 
 public:
     Pipeline();
@@ -47,7 +47,20 @@ public:
     Pipeline_Type GetPipelineType();
     int SetPipelineType(Pipeline_Type a);
     Pipeline* GetNextPipeline();
+    int SetNextPipeline(Pipeline *p);
     int Shutdown();
     int  SetState(Pipeline_State s);
     Pipeline_State  GetState();
+    int GetRbufsize();
+    int GetWbufsize();
+    int SetRbufsize(uint16_t s);
+    int SetWbufsize(uint16_t s);
+    uint8_t *GetReadBuffer();
+    uint8_t *GetWriteBuffer();
+    void Debug_Read();
+    void Debug_Write();
+    bool GetSelected();
+    void SetSelected();
+
+
 };

@@ -1,4 +1,5 @@
 #include <iostream>
+#include <csignal>
 #include <vector>
 #include <sys/types.h>
 #include <sys/socket.h>
@@ -22,17 +23,23 @@ static void myerror(const char *msg);
 /* this can all go into a controller class when more mature */
 
 Pipeline* telnet_acceptor = NULL;
-//Pipeline* IOPipelines[MAX_PIPELINES];
 
 vector<Pipeline*> SelectablePipelines;
 fd_set socketset;
 struct timeval timeout;
 int sockfd = -1;         /* socket for TCP listener */
+bool terminated = false;
 
 static void myerror(const char *msg)
 {
     perror(msg);
     exit(1);
+}
+
+void int_handler(int x)
+{
+    cout << "Terminating ..." << endl;
+    terminated = true;
 }
 
 
@@ -66,7 +73,10 @@ int BuildIOSelectSet()
 
     FD_ZERO (&socketset);
     for(iter = SelectablePipelines.begin(), end = SelectablePipelines.end() ; iter != end; iter++) {
-        //std::cout << "Adding fd " << (*iter)->GetRsockfd() << " to select set" << std::endl;
+        if (!(*iter)->GetSelected()) {
+        std::cout << "Adding fd " << (*iter)->GetRsockfd() << " to select set" << std::endl;
+        (*iter)->SetSelected();
+        }
         FD_SET ((*iter)->GetRsockfd(), &socketset);
     }
 
@@ -74,12 +84,24 @@ int BuildIOSelectSet()
 
 }
 
+void ShutdownIO()
+{
+    std::vector<Pipeline*>::iterator iter, end, iter2;
+    for(iter = SelectablePipelines.begin(), end = SelectablePipelines.end() ; iter != end; iter++) {
+        (*iter)->Shutdown();
+        }
+
+}
+
 
 int PerformReadIO(Pipeline *p)
 {
     NVT *nvt_ptr = NULL;
+    Subprocess *sub_ptr = NULL;
     enum Pipeline_Type t;
+    int r = 0;
     t = p->GetPipelineType();
+    
 
     switch(t) {
     case Pipeline_Type::PIPELINE_RAW:
@@ -87,19 +109,61 @@ int PerformReadIO(Pipeline *p)
         break;
     case Pipeline_Type::PIPELINE_NVT:
         nvt_ptr = (NVT*) p;
-        nvt_ptr->pRead();
+        r =  nvt_ptr->pRead();
+        nvt_ptr->Debug_Read();
+        return r;
         break;
     case Pipeline_Type::PIPELINE_SUBPROCESS:
-        cout << "+++ Subprocess read: no handler" << endl;
-        exit(1);
+        sub_ptr = (Subprocess*) p;
+        r = sub_ptr->pRead();
+        if (!r) {
+            cout << "--> EOF on socket" << endl;
+            ShutdownIO();
+            exit(1);
+            }
+        sub_ptr->Debug_Read();
+        return r;
         break;
     default:
         cout << "+++ Unknown Pipeline_Type" << endl;
         break;
     }
 
-    return 1;
+    return -1;
 }
+
+int PerformWriteIO(Pipeline *p)
+{
+    NVT *nvt_ptr = NULL;
+    Subprocess *sub_ptr = NULL;
+    enum Pipeline_Type t;
+    int w = 0;
+    t = p->GetPipelineType();
+
+    switch(t) {
+    case Pipeline_Type::PIPELINE_RAW:
+        p->pWrite();
+        break;
+    case Pipeline_Type::PIPELINE_NVT:
+        nvt_ptr = (NVT*) p;
+        w = nvt_ptr->pWrite();
+        nvt_ptr->Debug_Write();
+        return w;
+        break;
+    case Pipeline_Type::PIPELINE_SUBPROCESS:
+        sub_ptr = (Subprocess*) p;
+        w = sub_ptr->pWrite();
+        sub_ptr->Debug_Write(); 
+        return w;
+        break;
+    default:
+        cout << "+++ Unknown Pipeline_Type" << endl;
+        break;
+    }
+
+    return -1;
+}
+
 
 
 int RunIOSelectSet()
@@ -110,6 +174,9 @@ int RunIOSelectSet()
     int newsockfd = -1;
     NVT *new_nvt = NULL;
     char *myargv[64];
+    Subprocess *shell = NULL;
+    pid_t child_process = 0;
+    int r, w; 
 
     int s = 0;
 //    cout << "RunIOSelectSet()" << endl;
@@ -135,7 +202,8 @@ int RunIOSelectSet()
                     // telnet connection is bi-direction TCP communication via a single socket
                     new_nvt->RegisterSocket(newsockfd, newsockfd);
                     if (!RegisterForIO((Pipeline*)(new_nvt))) {
-                        cout << "Couldn't Register NVT for I/O\n" << endl;
+                        cout << "Couldn't Register NVT for I/O" << endl;
+                       exit(1);
                     };
 
 
@@ -145,15 +213,17 @@ int RunIOSelectSet()
                     shell = new Subprocess();
                     child_process = shell->StartProcess(myargv[0], myargv);
                     cout << "child process pid is " << child_process << endl;
-                    r = shell->GetPipeFD(0, 0);
-                    w = shell->GetPipeFD(0, 1);
+                    r = shell->GetPipeFD(PARENT_READ_PIPE, READ_FD);
+                    w = shell->GetPipeFD(PARENT_WRITE_PIPE, WRITE_FD);
                     shell->RegisterSocket(r, w);
-
-
-
-
-
-
+                    if (!RegisterForIO((Pipeline*)(shell))) {
+                        cout << "Couldn't Register Subprocess for I/O" << endl;
+                        exit(1);
+                    };
+                    new_nvt->SetNextPipeline(shell);
+                    new_nvt->SetState(STATE_CONNECTED);
+                    shell->SetNextPipeline(new_nvt);
+                    shell->SetState(STATE_CONNECTED);
 
                 } else {
                     cout << "[" << r << "] input received" << endl;
@@ -171,7 +241,26 @@ int RunIOSelectSet()
                             else {
                                 ++iter2;
                             }
-                    }
+                    } else {
+                        /* we have a connection, transfer the data */
+
+                        Pipeline *s = (*iter);
+                        Pipeline *d = (*iter)->GetNextPipeline();
+                        if (!s->GetNextPipeline() || ! d->GetNextPipeline()) {
+                            cout << "Unterminated circuit!" << endl;
+                            exit(1);
+                            }
+                        int r = s->GetRbufsize(); 
+                        int w = 0;
+                        if (r) {
+                            cout << "Pipeline write! " << r << " bytes" << endl;
+                            memcpy(d->GetWriteBuffer(), s->GetReadBuffer(),  r);
+                            d->SetWbufsize(d->GetWbufsize() + r); 
+                            w = PerformWriteIO(d); 
+                            cout << "Transferred " << w << " bytes" << endl;
+                            s->SetRbufsize(0);
+                            }
+                        }
                 }
                 break;
             }
@@ -205,27 +294,17 @@ int main(int argc, char *argv[])
     Subprocess *shell = NULL;
     char *myargv[64];
     int r =0, w = 0;
+    int optval = 1 ; 
 
-    /*
-        myargv[0] = (char *) "/bin/bash";
-        myargv[1] = (char *) "-i";
-        myargv[2] = NULL;
-        shell = new Subprocess();
-        child_process = shell->StartProcess(myargv[0], myargv);
-        cout << "child process pid is " << child_process << endl;
-        r = shell->GetPipeFD(0, 0);
-        w = shell->GetPipeFD(0, 1);
-        shell->RegisterSocket(r, w);
-    */
-    /*
-    while (1) {
-
-            }
-    */
+    signal(SIGINT,int_handler); 
 
     cout << "Initializing listener socket on port " << LISTEN_PORT << endl;
 
     sockfd = socket(AF_INET, SOCK_STREAM, 0);
+    if (setsockopt(sockfd,SOL_SOCKET,SO_REUSEADDR,&optval,sizeof(int)) == -1) {
+          perror("setsockopt") ;
+          exit(-1) ;
+      }
 
     if (sockfd < 0) {
         myerror("ERROR opening socket");
@@ -263,7 +342,7 @@ int main(int argc, char *argv[])
         exit(1);
     }
 
-    while (1) {
+    while (!terminated) {
         if (!BuildIOSelectSet()) {
             cout << "+++ Error building IO select set" << endl;
             exit(1);
@@ -274,6 +353,8 @@ int main(int argc, char *argv[])
         }
     }
 
+    cout << "Shutting down sockets ..." << endl;
+    ShutdownIO();
     exit(0);
 
 }

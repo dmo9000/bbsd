@@ -57,6 +57,7 @@ int Subprocess::pWrite()
 {
     int w = 0;
     cout << "Subprocess::pWrite()" << endl;
+    //Debug_Write();
     w = Pipeline::pWrite();
     return w;
 }
@@ -68,19 +69,22 @@ pid_t Subprocess::StartProcess(const char *path, char **argv)
     pid_t child_pid = 0;
     int flags = 0;
     int p = 0;
+    int i = 0, j = 0;
 
     cout << "StartProcess(" << path << ")" << endl;
     p = pipe(pipes[PARENT_READ_PIPE]);
     printf("Create parent read pipe = %d\n", p);
-    pipe(pipes[PARENT_WRITE_PIPE]);
+    p = pipe(pipes[PARENT_WRITE_PIPE]);
     printf("Create parent write pipe = %d\n", p);
 
     child_pid = fork();
     if(!child_pid) {
         /* we are within the child process here */
         //argv = { "/bin/bash", "-i", NULL };
-        argv[0] = (char *) "/bin/bash";
-        argv[1] = (char *) "-i"; 
+        //argv[0] = (char *) "/usr/bin/bash";
+        //argv[1] = (char *) "-i"; 
+        argv[0] = (char *) "/usr/bin/fortune";
+        argv[1] = (char *) "-l"; 
         argv[2] = NULL;
         p = dup2(CHILD_READ_FD, STDIN_FILENO);      
         cout << "child: read_fd = "  << p << endl;
@@ -96,9 +100,10 @@ pid_t Subprocess::StartProcess(const char *path, char **argv)
         close(PARENT_READ_FD);
         cout << "child: closing PARENT_WRITE_FD = " << PARENT_WRITE_FD << endl;
         close(PARENT_WRITE_FD);
-        close(0);
-        close(1);
-        close(2);
+
+        //close(0);
+        //close(1);
+        //close(2);
         execv(argv[0], argv);
         /* never return */
     } else {
@@ -111,6 +116,16 @@ pid_t Subprocess::StartProcess(const char *path, char **argv)
         flags = fcntl(PARENT_READ_FD, F_GETFL, 0);
         fcntl(PARENT_READ_FD, F_SETFL, flags | O_NONBLOCK);
     }
+    cout << "+PARENT_WRITE_FD:  " << PARENT_WRITE_FD << endl;
+    cout << "+PARENT_READ_FD:   " << PARENT_READ_FD << endl;
+    for (i = 0; i < 2; i++) {
+        for (j = 0; j < 2; j++) {
+            printf("pipes[%d][%d]=%d\n", i, j, pipes[i][j]);
+            }
+        }
+
+    //write(PARENT_WRITE_FD, "echo \"1 + 1\" | bc\n", 18);
+
     return child_pid;
 }
 
