@@ -87,18 +87,18 @@ pid_t Subprocess::StartProcess(const char *path, char **argv)
         argv[1] = (char *) "-l"; 
         argv[2] = NULL;
         p = dup2(CHILD_READ_FD, STDIN_FILENO);      
-        cout << "child: read_fd = "  << p << endl;
+        //cout << "child: read_fd = "  << p << endl;
         p = dup2(CHILD_WRITE_FD, STDOUT_FILENO);
-        cout << "child: write_fd = "  << p << endl;
+        //cout << "child: write_fd = "  << p << endl;
         /* Close fds not required by child. Also, we don't
            want the exec'ed program to know these existed */
-        cout << "child: closing CHILD_READ_FD = " << CHILD_READ_FD << endl;
+        //cout << "child: closing CHILD_READ_FD = " << CHILD_READ_FD << endl;
         close(CHILD_READ_FD);
-        cout << "child: closing CHILD_WRITE_FD = " << CHILD_WRITE_FD << endl;
+        //cout << "child: closing CHILD_WRITE_FD = " << CHILD_WRITE_FD << endl;
         close(CHILD_WRITE_FD);
-        cout << "child: closing PARENT_READ_FD = " << PARENT_READ_FD << endl;
+        //cout << "child: closing PARENT_READ_FD = " << PARENT_READ_FD << endl;
         close(PARENT_READ_FD);
-        cout << "child: closing PARENT_WRITE_FD = " << PARENT_WRITE_FD << endl;
+        //cout << "child: closing PARENT_WRITE_FD = " << PARENT_WRITE_FD << endl;
         close(PARENT_WRITE_FD);
 
         //close(0);

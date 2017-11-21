@@ -58,8 +58,13 @@ int RegisterForIO(Pipeline* p)
         cout << "+++ fd " << r << " is out of range" << endl;
         exit(1);
     }
-
     return 1;
+}
+
+int UnregisterForIO(Pipeline *p, bool do_shutdown)
+{
+
+
 
 }
 
@@ -74,10 +79,26 @@ int BuildIOSelectSet()
     FD_ZERO (&socketset);
     for(iter = SelectablePipelines.begin(), end = SelectablePipelines.end() ; iter != end; iter++) {
         if (!(*iter)->GetSelected()) {
-        std::cout << "Adding fd " << (*iter)->GetRsockfd() << " to select set" << std::endl;
-        (*iter)->SetSelected();
+            std::cout << "Adding fd " << (*iter)->GetRsockfd() << " to select set" << std::endl;
+            (*iter)->SetSelected();
         }
-        FD_SET ((*iter)->GetRsockfd(), &socketset);
+
+        if ((*iter)->GetState() == STATE_DISCONNECTED && (*iter)->IsReadyForDeletion()) {
+            cout << "BuildIOSelectSet(): found Pipeline for deletion" << endl;
+            (*iter)->Shutdown();
+            /* remove from the vector of open pipelines */
+            for ( iter2 = SelectablePipelines.begin(); iter2 != SelectablePipelines.end(); )
+                if(*iter2 == *iter) {
+                    cout << "Removing pipeline from vector" << endl;
+                    delete * iter2;
+                    iter2 = SelectablePipelines.erase(iter2);
+                }
+                else {
+                    ++iter2;
+                }
+        } else {
+            FD_SET ((*iter)->GetRsockfd(), &socketset);
+        }
     }
 
     return 1;
@@ -89,7 +110,7 @@ void ShutdownIO()
     std::vector<Pipeline*>::iterator iter, end, iter2;
     for(iter = SelectablePipelines.begin(), end = SelectablePipelines.end() ; iter != end; iter++) {
         (*iter)->Shutdown();
-        }
+    }
 
 }
 
@@ -101,7 +122,7 @@ int PerformReadIO(Pipeline *p)
     enum Pipeline_Type t;
     int r = 0;
     t = p->GetPipelineType();
-    
+
 
     switch(t) {
     case Pipeline_Type::PIPELINE_RAW:
@@ -110,6 +131,13 @@ int PerformReadIO(Pipeline *p)
     case Pipeline_Type::PIPELINE_NVT:
         nvt_ptr = (NVT*) p;
         r =  nvt_ptr->pRead();
+        if (!r) {
+            cout << "--> EOF on NVT" << endl;
+            nvt_ptr->GetNextPipeline()->SetReadyForDeletion();
+            nvt_ptr->GetNextPipeline()->SetState(STATE_DISCONNECTED);
+            nvt_ptr->SetReadyForDeletion();
+            nvt_ptr->SetState(STATE_DISCONNECTED);
+        }
         nvt_ptr->Debug_Read();
         return r;
         break;
@@ -117,10 +145,12 @@ int PerformReadIO(Pipeline *p)
         sub_ptr = (Subprocess*) p;
         r = sub_ptr->pRead();
         if (!r) {
-            cout << "--> EOF on socket" << endl;
-            ShutdownIO();
-            exit(1);
-            }
+            cout << "--> EOF on subprocess" << endl;
+            sub_ptr->GetNextPipeline()->SetReadyForDeletion();
+            sub_ptr->GetNextPipeline()->SetState(STATE_DISCONNECTED);
+            sub_ptr->SetReadyForDeletion();
+            sub_ptr->SetState(STATE_DISCONNECTED);
+        }
         sub_ptr->Debug_Read();
         return r;
         break;
@@ -153,7 +183,7 @@ int PerformWriteIO(Pipeline *p)
     case Pipeline_Type::PIPELINE_SUBPROCESS:
         sub_ptr = (Subprocess*) p;
         w = sub_ptr->pWrite();
-        sub_ptr->Debug_Write(); 
+        sub_ptr->Debug_Write();
         return w;
         break;
     default:
@@ -176,7 +206,7 @@ int RunIOSelectSet()
     char *myargv[64];
     Subprocess *shell = NULL;
     pid_t child_process = 0;
-    int r, w; 
+    int r, w;
 
     int s = 0;
 //    cout << "RunIOSelectSet()" << endl;
@@ -203,7 +233,7 @@ int RunIOSelectSet()
                     new_nvt->RegisterSocket(newsockfd, newsockfd);
                     if (!RegisterForIO((Pipeline*)(new_nvt))) {
                         cout << "Couldn't Register NVT for I/O" << endl;
-                       exit(1);
+                        exit(1);
                     };
 
 
@@ -228,8 +258,8 @@ int RunIOSelectSet()
                 } else {
                     cout << "[" << r << "] input received" << endl;
                     PerformReadIO(*iter);
-                    if ((*iter)->GetState() == STATE_DISCONNECTED) {
-                        cout << "Pipeline is unconnected, closing" << endl;
+                    if ((*iter)->GetState() == STATE_DISCONNECTED && (*iter)->IsReadyForDeletion()) {
+                        cout << "Pipeline is unconnected, and marked for deletion, closing" << endl;
                         (*iter)->Shutdown();
                         /* remove from the vector of open pipelines */
                         for ( iter2 = SelectablePipelines.begin(); iter2 != SelectablePipelines.end(); )
@@ -249,18 +279,18 @@ int RunIOSelectSet()
                         if (!s->GetNextPipeline() || ! d->GetNextPipeline()) {
                             cout << "Unterminated circuit!" << endl;
                             exit(1);
-                            }
-                        int r = s->GetRbufsize(); 
+                        }
+                        int r = s->GetRbufsize();
                         int w = 0;
                         if (r) {
                             cout << "Pipeline write! " << r << " bytes" << endl;
                             memcpy(d->GetWriteBuffer(), s->GetReadBuffer(),  r);
-                            d->SetWbufsize(d->GetWbufsize() + r); 
-                            w = PerformWriteIO(d); 
+                            d->SetWbufsize(d->GetWbufsize() + r);
+                            w = PerformWriteIO(d);
                             cout << "Transferred " << w << " bytes" << endl;
                             s->SetRbufsize(0);
-                            }
                         }
+                    }
                 }
                 break;
             }
@@ -294,17 +324,17 @@ int main(int argc, char *argv[])
     Subprocess *shell = NULL;
     char *myargv[64];
     int r =0, w = 0;
-    int optval = 1 ; 
+    int optval = 1 ;
 
-    signal(SIGINT,int_handler); 
+    signal(SIGINT,int_handler);
 
     cout << "Initializing listener socket on port " << LISTEN_PORT << endl;
 
     sockfd = socket(AF_INET, SOCK_STREAM, 0);
     if (setsockopt(sockfd,SOL_SOCKET,SO_REUSEADDR,&optval,sizeof(int)) == -1) {
-          perror("setsockopt") ;
-          exit(-1) ;
-      }
+        perror("setsockopt") ;
+        exit(-1) ;
+    }
 
     if (sockfd < 0) {
         myerror("ERROR opening socket");

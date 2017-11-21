@@ -209,3 +209,15 @@ void Pipeline::SetSelected()
     selected = true;
 }
 
+bool Pipeline::IsReadyForDeletion()
+{
+    return ready_for_deletion;
+}
+
+void Pipeline::SetReadyForDeletion()
+{
+    ready_for_deletion = true;
+}
+
+
+

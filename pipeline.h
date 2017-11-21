@@ -36,6 +36,7 @@ private:
     uint8_t rbuf[BUFSIZE];
     uint8_t wbuf[BUFSIZE];
     bool selected = false; 
+    bool ready_for_deletion = false;
 
 public:
     Pipeline();
@@ -61,6 +62,8 @@ public:
     void Debug_Write();
     bool GetSelected();
     void SetSelected();
+    bool IsReadyForDeletion();
+    void SetReadyForDeletion();
 
 
 };
