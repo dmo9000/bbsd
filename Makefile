@@ -1,11 +1,16 @@
 OBJS = main.o pipeline.o subprocess.o nvt.o
-FLAGS = -g -ggdb -std=c++11
+#FLAGS = -g -ggdb -std=c++11
+FLAGS = -std=c++11
 
 
-all: pmain yourname
+
+all: pmain yourname mainmenu
 
 yourname: yourname.o
 	gcc -o yourname yourname.o
+
+mainmenu: mainmenu.o
+	g++ $(FLAGS) -o $@ mainmenu.o 
 
 pmain:	$(OBJS)	
 	g++ $(FLAGS) -o $@ $(OBJS)
