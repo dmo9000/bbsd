@@ -273,7 +273,7 @@ int RunIOSelectSet()
                         exit(1);
                     };
 
-                    myargv[0] = (char *) "./yourname";
+                    myargv[0] = (char *) "./mainmenu";
                     myargv[1] = NULL;
                     shell = new Subprocess();
                     child_process = shell->StartProcess(myargv[0], myargv);
