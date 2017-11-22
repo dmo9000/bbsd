@@ -23,4 +23,4 @@ opencommand:	opencommand.o
 	g++ -c $(CXX_FLAGS) $(FLAGS) -o $@ $<
 
 clean:
-	rm -f pmain open2 yourname *.o
+	rm -f pmain open2 mainmenu yourname *.o
