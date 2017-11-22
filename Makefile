@@ -4,13 +4,10 @@ FLAGS = -std=c++11
 
 
 
-all: pmain yourname mainmenu
+all: pmain mainmenu
 
-yourname: yourname.o
-	gcc -o yourname yourname.o
-
-mainmenu: mainmenu.o
-	g++ $(FLAGS) -o $@ mainmenu.o 
+mainmenu: mainmenu.o pipeline.o subprocess.o
+	g++ $(FLAGS) -o $@ mainmenu.o pipeline.o subprocess.o
 
 pmain:	$(OBJS)	
 	g++ $(FLAGS) -o $@ $(OBJS)
@@ -23,4 +20,4 @@ opencommand:	opencommand.o
 	g++ -c $(CXX_FLAGS) $(FLAGS) -o $@ $<
 
 clean:
-	rm -f pmain open2 mainmenu yourname *.o
+	rm -f pmain open2 mainmenu *.o
