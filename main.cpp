@@ -18,8 +18,8 @@ using std::vector;
 
 static void myerror(const char *msg);
 
-#define LISTEN_PORT     8023
-#define MAX_PIPELINES     16
+#define LISTEN_PORT     8024
+#define MAX_PIPELINES   128 
 
 /* this can all go into a controller class when more mature */
 
