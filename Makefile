@@ -1,6 +1,7 @@
 OBJS = main.o pipeline.o subprocess.o nvt.o
 FLAGS = -std=c++11 -DBBSD_ROOT="/usr/local/bbsd"
 
+all: mainmenu pmain
 
 mainmenu: mainmenu.o pipeline.o subprocess.o
 	g++ $(FLAGS) -o $@ mainmenu.o pipeline.o subprocess.o
