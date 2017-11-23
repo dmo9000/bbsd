@@ -8,7 +8,7 @@ using std::endl;
 Pipeline::Pipeline()
 {
 
-    cout << "Pipeline created" << endl;
+    //cout << "Pipeline created" << endl;
     pType = Pipeline_Type::PIPELINE_RAW;
 
 }
@@ -44,7 +44,7 @@ int Pipeline::SetPipelineType(Pipeline_Type a)
 
 int Pipeline::RegisterSocket(int r, int w)
 {
-    cout << "Pipeline::RegisterSocket" << "(read=" << r << ", write=" << w << ")" << endl;
+//    cout << "Pipeline::RegisterSocket" << "(read=" << r << ", write=" << w << ")" << endl;
 
     if (r > 0) {
         rsock = r;
@@ -70,13 +70,13 @@ int Pipeline::GetRsockfd()
 int Pipeline::pRead()
 {
     int r = 0;
-    cout << "Pipeline::pRead(" << rsock << ")" << endl;
+//    cout << "Pipeline::pRead(" << rsock << ")" << endl;
     r = read(rsock, &rbuf, BUFSIZE - rsize); 
-    cout << "read " << r << " bytes" << endl;
+//    cout << "read " << r << " bytes" << endl;
 
     
     if (r == 0) {
-            cout << "+++EOF on socket " << rsock << endl;
+//            cout << "+++EOF on socket " << rsock << endl;
             }
 
     rsize += r;

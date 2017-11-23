@@ -5,21 +5,23 @@
 using std::cout;
 using std::endl;
 
-#define WRITE_FD 1
+//#define WRITE_FD 1
 
+/*
 #define PARENT_READ_FD   pipes[PARENT_READ_PIPE][READ_FD]   
 #define PARENT_WRITE_FD  pipes[PARENT_WRITE_PIPE][WRITE_FD] 
 #define CHILD_READ_FD    pipes[PARENT_WRITE_PIPE][READ_FD]  
 #define CHILD_WRITE_FD   pipes[PARENT_READ_PIPE][WRITE_FD]  
+*/
 
 Subprocess::Subprocess()
 {
-    cout << "Subprocess created" << endl;
+//    cout << "Subprocess created" << endl;
 }
 
 Subprocess::~Subprocess()
 {
-    cout << "Subprocess destroyed" << endl;
+ //   cout << "Subprocess destroyed" << endl;
 }
 
 int Subprocess::GetPipeFD(int pair, int channel)
@@ -30,13 +32,13 @@ int Subprocess::GetPipeFD(int pair, int channel)
 int Subprocess::RegisterSocket(int r, int w)
 {
     int flags = 0;
-    cout << "Subprocess::RegisterSocket" << "(read=" << r << ", write=" << w << ")" << endl;
+//    cout << "Subprocess::RegisterSocket" << "(read=" << r << ", write=" << w << ")" << endl;
     /* for an Subprocess we use non-blocking I/O, since telnet protocol can be a little adhoc */
     flags = fcntl(r, F_GETFL, 0);
     fcntl(r, F_SETFL, flags | O_NONBLOCK);
     flags = fcntl(w, F_GETFL, 0);
     fcntl(w, F_SETFL, flags | O_NONBLOCK);
-    cout << "Subprocess set sockets to non-blocking mode" << endl;
+//    cout << "Subprocess set sockets to non-blocking mode" << endl;
     SetPipelineType(Pipeline_Type::PIPELINE_SUBPROCESS);
     return Pipeline::RegisterSocket(r, w);
 }
@@ -44,7 +46,7 @@ int Subprocess::RegisterSocket(int r, int w)
 int Subprocess::pRead()
 {
     int r = 0;
-    cout << "Subprocess::pRead()" << endl;
+//    cout << "Subprocess::pRead()" << endl;
     r = Pipeline::pRead();
     return r;
 }
@@ -52,7 +54,7 @@ int Subprocess::pRead()
 int Subprocess::pWrite()
 {
     int w = 0;
-    cout << "Subprocess::pWrite()" << endl;
+//    cout << "Subprocess::pWrite()" << endl;
     //Debug_Write();
     w = Pipeline::pWrite();
     return w;
@@ -64,11 +66,11 @@ pid_t Subprocess::StartProcess(const char *path, char **argv)
     int p = 0;
     int i = 0, j = 0;
 
-    cout << "StartProcess(" << path << ")" << endl;
+//    cout << "StartProcess(" << path << ")" << endl;
     p = pipe(pipes[PARENT_READ_PIPE]);
-    printf("Create parent read pipe = %d\n", p);
+//    printf("Create parent read pipe = %d\n", p);
     p = pipe(pipes[PARENT_WRITE_PIPE]);
-    printf("Create parent write pipe = %d\n", p);
+//    printf("Create parent write pipe = %d\n", p);
 
     child_pid = fork();
     if(!child_pid) {
@@ -106,13 +108,13 @@ pid_t Subprocess::StartProcess(const char *path, char **argv)
         flags = fcntl(PARENT_READ_FD, F_GETFL, 0);
         fcntl(PARENT_READ_FD, F_SETFL, flags | O_NONBLOCK);
     }
-    cout << "+PARENT_WRITE_FD:  " << PARENT_WRITE_FD << endl;
-    cout << "+PARENT_READ_FD:   " << PARENT_READ_FD << endl;
-    for (i = 0; i < 2; i++) {
-        for (j = 0; j < 2; j++) {
-            printf("pipes[%d][%d]=%d\n", i, j, pipes[i][j]);
-            }
-        }
+//    cout << "+PARENT_WRITE_FD:  " << PARENT_WRITE_FD << endl;
+//    cout << "+PARENT_READ_FD:   " << PARENT_READ_FD << endl;
+//    for (i = 0; i < 2; i++) {
+//        for (j = 0; j < 2; j++) {
+ //           printf("pipes[%d][%d]=%d\n", i, j, pipes[i][j]);
+ //           }
+  //      }
 
     return child_pid;
 }
