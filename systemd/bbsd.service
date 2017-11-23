@@ -1,0 +1,10 @@
+[Unit]
+Description=bbsd
+
+[Service]
+ExecStart=/usr/local/bbsd/pmain
+StandardOutput=/usr/local/bbsd/bbsd.log
+
+[Install]
+WantedBy=multi-user.target
+Alias=bbsd.service
