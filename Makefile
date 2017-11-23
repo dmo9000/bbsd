@@ -16,9 +16,11 @@ clean:
 	rm -f pmain mainmenu *.o
 
 install:
+	sudo service bbsd stop 
 	mkdir -p /usr/local/bbsd/data
 	cp pmain /usr/local/bbsd
 	cp mainmenu /usr/local/bbsd
 	cp systemd/bbsd.service /lib/systemd/system
-
+	sudo service bbsd start
+	sudo service bbsd status
 	

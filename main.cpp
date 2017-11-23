@@ -15,6 +15,18 @@ using std::cout;
 using std::endl;
 using std::vector;
 
+/*
+
+		This code will probably never need to run on Windows, but if it ever does, bear
+		in mind that Windows treats "text" and "binary" file modes differently, but UNIX/Linux
+		don't. Windows opens stdout, stderr etc. in text mode by default. 
+
+			https://msdn.microsoft.com/en-us/library/ktss1a9b.aspx
+
+		So to avoid translating CRLF to CRCRLF when in text mode, you'd want to call _setmode()
+		on the filehandle to switch it to binary. 
+
+*/
 
 static void myerror(const char *msg);
 
