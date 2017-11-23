@@ -273,7 +273,7 @@ int RunIOSelectSet()
                         exit(1);
                     };
 
-                    myargv[0] = (char *) "./mainmenu";
+                    myargv[0] = (char *) "/usr/local/bbsd/mainmenu";
                     myargv[1] = NULL;
                     shell = new Subprocess();
                     child_process = shell->StartProcess(myargv[0], myargv);
@@ -362,6 +362,8 @@ int main(int argc, char *argv[])
     int optval = 1 ;
 
     signal(SIGINT,int_handler);
+
+    chdir("/usr/local/bbsd");
 
     cout << "Initializing listener socket on port " << LISTEN_PORT << endl;
 

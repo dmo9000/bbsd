@@ -1,6 +1,6 @@
 OBJS = main.o pipeline.o subprocess.o nvt.o
 #FLAGS = -g -ggdb -std=c++11
-FLAGS = -std=c++11
+FLAGS = -std=c++11 -DBBSD_ROOT="/usr/local/bbsd"
 
 
 
