@@ -21,3 +21,10 @@ opencommand:	opencommand.o
 
 clean:
 	rm -f pmain open2 mainmenu *.o
+
+install:
+	mkdir -p /usr/local/bbsd/data
+	cp pmain /usr/local/bbsd
+	cp mainmenu /usr/local/bbsd
+
+	
