@@ -61,7 +61,8 @@ int NVT::pWrite()
     cout << "NVT::pWrite()" << endl;
 
 
-    if (!line_discpline) {
+    if (!line_discipline) {
+        /* RAW path */
         return Pipeline::pWrite();
         }
 
