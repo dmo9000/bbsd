@@ -49,15 +49,20 @@ int main(int argc, char *argv[])
 
     printf ("%c[H%c[2J", CHAR_ESCAPE, CHAR_ESCAPE);
     printf ("%c[1;1H", CHAR_ESCAPE);
-		printf ("\n");
+    printf ("\n");
 
     myargv[0] = (char *) "/usr/bin/cat";
     myargv[1] = (char *) "/usr/local/bbsd/data/k1shack.ans";
     myargv[2] = NULL;
     if (!RunSubprocess(myargv)) {
         cout << endl << "Error: couldn't start process" << endl;
-				exit(1);
-        };
+        exit(1);
+    };
+
+
+    /* reset terminal pen & paper colors */
+    printf ("%c[0m", CHAR_ESCAPE);
+
 
     printf("\n\nBMI Technology Menu\n");
     printf("You are connected on node [%s]\n\n", myhostname);
@@ -82,11 +87,13 @@ int main(int argc, char *argv[])
         switch (choice) {
         case 1:
 
-						/* FIXME: vt100 specific clear screen */	
+            /* FIXME: vt100 specific clear screen */
 
             printf ("%c[H%c[2J", CHAR_ESCAPE, CHAR_ESCAPE);
             printf ("%c[1;1H", CHAR_ESCAPE);
-						printf ("\n");
+            /* reset terminal pen & paper colors */
+            printf ("%c[0m", CHAR_ESCAPE);
+            printf ("\n");
 
             myargv[0] = (char *) "/usr/bin/fortune";
             myargv[1] = (char *) "-l";
