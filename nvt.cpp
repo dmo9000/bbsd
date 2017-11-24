@@ -61,10 +61,11 @@ int NVT::pWrite()
     cout << "NVT::pWrite()" << endl;
 
 
+    /*
     if (!line_discipline) {
-        /* RAW path */
         return Pipeline::pWrite();
         }
+    */
 
     w = GetWsockfd();
     memset((char *) &nvt_wbuf, 0, BUFSIZE);
