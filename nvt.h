@@ -9,6 +9,7 @@ class NVT : public Pipeline
 protected:
 
 private:
+    bool line_discipline = false;
 
 public:
     NVT();
@@ -16,6 +17,6 @@ public:
     int RegisterSocket(int r, int w);
     int pRead();
     int pWrite();
-		int LineDiscipline();
+	int LineDiscipline();
     void Shutdown();
 };
