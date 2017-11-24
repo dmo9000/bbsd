@@ -1,4 +1,12 @@
+http://www.boost.org/doc/libs/1_40_0/libs/iostreams/doc/index.html?path=4.2.10.1
+
+^^ suggested that this may have an easy way of doing it, but I don't really know if I want the dependency.
+
+---
+
 https://stackoverflow.com/questions/39395704/read-write-stdin-out-for-bash-interpreter-linux-fork-execl
 http://www.cs.fredonia.edu/zubairi/s2k2/csit431/pipes.html
 https://stackoverflow.com/questions/3736210/how-to-execute-a-shell-script-from-c-in-linux
 https://jineshkj.wordpress.com/2006/12/22/how-to-capture-stdin-stdout-and-stderr-of-child-program/
+
+

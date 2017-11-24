@@ -50,10 +50,52 @@ int NVT::pRead()
 
 int NVT::pWrite()
 {
-    int w = 0;
+		uint8_t nvt_wbuf[BUFSIZE];
+		int w = -1; 
+    int wr = 0;
+		int i = 0;
+		uint32_t out_idx = 0;
+		uint16_t remain = GetWbufsize();
+		uint8_t *ptr = GetWriteBuffer();
+
     cout << "NVT::pWrite()" << endl;
-    w = Pipeline::pWrite();
-    return w;
+		w = GetWsockfd();
+		memset((char *) &nvt_wbuf, 0, BUFSIZE);
+
+		for (i = 0; i < remain; i++) {
+			switch (ptr[i]) {
+					case 0xff: 
+						nvt_wbuf[out_idx] = 0xff;
+						nvt_wbuf[out_idx+1] = 0xff; 
+						out_idx+=2;
+						break;
+					case '\n':
+						nvt_wbuf[out_idx] = '\r';
+						nvt_wbuf[out_idx+1] = '\n';
+						out_idx+=2;
+						break;
+					default:
+						nvt_wbuf[out_idx] = ptr[i];
+						out_idx++;
+						break;
+					}
+			}
+
+		/* copy the altered buffer back to the output buffer, and write it out */
+
+		if (out_idx > 0x0000ffff) {
+				cout << "+++ NVT: output buffer is too large\n";
+				exit(1);
+				}
+
+		if (out_idx > GetWbufsize()) {
+				cout << "(NVT expanded buffer by " << (out_idx - GetWbufsize()) << " bytes)\n";
+				}
+
+		memcpy(ptr, &nvt_wbuf, out_idx);
+		SetWbufsize(out_idx);
+    wr = Pipeline::pWrite();
+    return wr;
 }
 
 void NVT::Shutdown()
@@ -64,4 +106,32 @@ void NVT::Shutdown()
 
 }
 
+int NVT::LineDiscipline()
+{
+		cout << "NVT::LineDiscipline()" << endl;
+		int lfcount = 0;
+		char *ptr = (char *) GetWriteBuffer();
+		char *endptr = (char *) &wbuf;
+		uint16_t buflen = 0;
+ 		endptr += 65536;
+		buflen = endptr - ptr;
 
+		cout << "++ LF check: " << GetWbufsize() << endl; 
+		Debug_Write();
+		ptr = memchr((const void *) ptr, '\n', (size_t) buflen);
+		if (!ptr) {
+				cout << "++ No linefeeds in stream" << endl;
+			return 1;
+			}
+
+		while (ptr < endptr) {
+			ptr = memchr((const void *) ptr, '\n', (size_t) buflen);
+			if (ptr) {
+				ptr++;
+				lfcount++;
+				}
+			}
+
+		cout << "++ " << lfcount << " linefeeds were found" << endl;
+		return 1;
+}

@@ -12,6 +12,8 @@ using std::cout;
 using std::endl;
 using std::vector;
 
+#define CHAR_ESCAPE	0x1B
+
 char myhostname[256];
 
 /*
@@ -40,10 +42,23 @@ int main(int argc, char *argv[])
     int choice = 0;
     bool logoff_requested = false;
 
+    setvbuf(stdout, NULL, _IONBF, 0);
+
     memset(&myhostname, 0, 256);
     gethostname((char *) &myhostname, 255);
 
-    setvbuf(stdout, NULL, _IONBF, 0);
+    printf ("%c[H%c[2J", CHAR_ESCAPE, CHAR_ESCAPE);
+    printf ("%c[1;1H", CHAR_ESCAPE);
+		printf ("\n");
+
+    myargv[0] = (char *) "/usr/bin/cat";
+    myargv[1] = (char *) "/usr/local/bbsd/data/bmilogo.ans";
+    myargv[2] = NULL;
+    if (!RunSubprocess(myargv)) {
+        cout << endl << "Error: couldn't start process" << endl;
+				exit(1);
+        };
+
     printf("\n\nBMI Technology Menu\n");
     printf("You are connected on node [%s]\n\n", myhostname);
 
@@ -66,7 +81,13 @@ int main(int argc, char *argv[])
 
         switch (choice) {
         case 1:
-            cout << endl << endl << endl << endl;
+
+						/* FIXME: vt100 specific clear screen */	
+
+            printf ("%c[H%c[2J", CHAR_ESCAPE, CHAR_ESCAPE);
+            printf ("%c[1;1H", CHAR_ESCAPE);
+						printf ("\n");
+
             myargv[0] = (char *) "/usr/bin/fortune";
             myargv[1] = (char *) "-l";
             myargv[2] = NULL;
@@ -78,7 +99,7 @@ int main(int argc, char *argv[])
         case 2:
             cout << endl << endl << endl << endl;
             myargv[0] = (char *) "/usr/bin/sz";
-            myargv[1] = (char *) "data/oempkg.arc";
+            myargv[1] = (char *) "/usr/local/bbsd/data/oempkg.arc";
             myargv[2] = NULL;
             if (!RunSubprocess(myargv)) {
                 cout << endl << "Error: couldn't start process" << endl;

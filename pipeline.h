@@ -24,6 +24,8 @@ class Pipeline
 {
 
 protected:
+    uint8_t rbuf[BUFSIZE];
+    uint8_t wbuf[BUFSIZE];
 
 private:
     Pipeline* next_pipeline = NULL;
@@ -33,8 +35,8 @@ private:
     int wsock = -1;
     uint16_t rsize = 0;
     uint16_t wsize = 0;
-    uint8_t rbuf[BUFSIZE];
-    uint8_t wbuf[BUFSIZE];
+//    uint8_t rbuf[BUFSIZE];
+//    uint8_t wbuf[BUFSIZE];
     bool selected = false; 
     bool ready_for_deletion = false;
 
@@ -43,6 +45,7 @@ public:
     ~Pipeline();
     int RegisterSocket(int r, int w);
     int GetRsockfd();
+    int GetWsockfd();
     int pRead();
     int pWrite();
     Pipeline_Type GetPipelineType();

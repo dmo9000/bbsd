@@ -225,14 +225,14 @@ int PerformWriteIO(Pipeline *p)
         break;
     case Pipeline_Type::PIPELINE_NVT:
         nvt_ptr = (NVT*) p;
-        w = nvt_ptr->pWrite();
         nvt_ptr->Debug_Write();
+        w = nvt_ptr->pWrite();
         return w;
         break;
     case Pipeline_Type::PIPELINE_SUBPROCESS:
         sub_ptr = (Subprocess*) p;
-        w = sub_ptr->pWrite();
         sub_ptr->Debug_Write();
+        w = sub_ptr->pWrite();
         return w;
         break;
     default:

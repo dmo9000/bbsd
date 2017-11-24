@@ -1,5 +1,5 @@
 OBJS = main.o pipeline.o subprocess.o nvt.o
-FLAGS = -std=c++11 -DBBSD_ROOT="/usr/local/bbsd"
+FLAGS = -std=c++11 -D__LINUX__ -fpermissive
 
 all: mainmenu pmain
 
@@ -18,6 +18,7 @@ clean:
 install:
 	sudo service bbsd stop 
 	mkdir -p /usr/local/bbsd/data
+	cp data/* /usr/local/bbsd/data
 	cp pmain /usr/local/bbsd
 	cp mainmenu /usr/local/bbsd
 	cp systemd/bbsd.service /lib/systemd/system

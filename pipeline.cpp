@@ -67,6 +67,12 @@ int Pipeline::GetRsockfd()
     return rsock;
 }
 
+int Pipeline::GetWsockfd()
+{
+    return wsock;
+}
+
+
 int Pipeline::pRead()
 {
     int r = 0;
@@ -112,9 +118,10 @@ void Pipeline::Debug_Write()
     char buffer[17];
     int b = 0;
     //int j = (wsize / 16) + ((wsize % 16) ? 16 : 0);
-    int j = ((rsize / 16) + ((rsize % 16) ? 1 : 0) * 16);
+    int j = ((wsize / 16) + ((wsize % 16) ? 1 : 0) * 16);
     //int j = 256; 
     
+		cout << "Debug_Write(" << wsize << ")" << endl;
     for (i = 0; i < j ; i++) {
         printf("%02x ", wbuf[i]);
         buffer[b] = (wbuf[i] >= 32 && wbuf[i] <=127 ? wbuf[i] : '.');
