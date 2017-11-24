@@ -9,7 +9,7 @@ class NVT : public Pipeline
 protected:
 
 private:
-    bool line_discipline = false;
+    bool line_discipline = true;
 
 public:
     NVT();
