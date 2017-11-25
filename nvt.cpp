@@ -65,7 +65,7 @@ int NVT::pRead()
         switch (ptr[0]) {
         case IAC:
             cout << "+++ IAC received in stream at offset " << ((uint8_t*) ptr - GetReadBuffer()) << endl;
-            //Debug_Read();
+            Debug_Read();
             optsize = IAC_Process(ptr);
             if (!optsize) {
                 cout << "+++ Error; option processing return size 0\n";
@@ -255,6 +255,11 @@ int NVT::IAC_Will(uint8_t opt)
 {
     printf("NVT::IAC_Will(0x%02x)\n", opt);
     switch(opt) {
+    case BINARY:
+        client_will_binary = true;
+        cout << ">RCVD WILL BINARY";
+        return 2;
+        break;
     case TERMINALTYPE:
         client_will_terminal_type = true;
         cout << ">RCVD WILL TERMINAL TYPE\n";
@@ -287,6 +292,11 @@ int NVT::IAC_Wont(uint8_t opt)
 {
     printf("NVT::IAC_Wont(0x%02x)\n", opt);
     switch(opt) {
+    case BINARY:
+        client_will_binary = false;
+        cout << ">RCVD WONT BINARY\n";
+        return 2;
+        break;
     case TERMINALTYPE:
         client_will_terminal_type = false;
         cout << ">RCVD WONT TERMINAL TYPE\n";
@@ -318,13 +328,80 @@ int NVT::IAC_Wont(uint8_t opt)
 int NVT::IAC_Do(uint8_t opt)
 {
     printf("NVT::IAC_Do(0x%02x)\n", opt);
-    exit(1);
+
+
+    switch(opt) {
+    case BINARY:
+        server_do_binary = true;
+        cout << ">RCVD DO BINARY\n";
+        return 2;
+        break;
+    /*
+    case TERMINALTYPE:
+        client_will_terminal_type = false;
+        cout << ">RCVD WONT TERMINAL TYPE\n";
+        return 2;
+        break;
+    case TSPEED:
+        client_will_tspeed = false;
+        cout << ">RCVD WONT TSPEED\n";
+        return 2;
+        break;
+    case XDISPLAYLOCATION:
+        client_will_xdisplaylocation = false;
+        cout << ">RCVD WONT XDISPLAYLOCATION\n";
+        return 2;
+        break;
+    case NEWENVIRON:
+        client_will_newenviron = false;
+        cout << ">RCVD WONT NEWENVIRON\n";
+        return 2;
+    */
+    default: 
+        cout << "++ Unhandled\n";
+        exit(1);
+        break;
+    }
+    return (0);
+
 }
 
 int NVT::IAC_Dont(uint8_t opt)
 {
     printf("NVT::IAC_Dont(0x%02x)\n", opt);
-    exit(1);
+   switch(opt) {
+    case BINARY:
+        server_do_binary = false;
+        cout << ">RCVD DONT BINARY\n";
+        return 2;
+        break;
+    /*
+    case TERMINALTYPE:
+        client_will_terminal_type = false;
+        cout << ">RCVD WONT TERMINAL TYPE\n";
+        return 2;
+        break;
+    case TSPEED:
+        client_will_tspeed = false;
+        cout << ">RCVD WONT TSPEED\n";
+        return 2;
+        break;
+    case XDISPLAYLOCATION:
+        client_will_xdisplaylocation = false;
+        cout << ">RCVD WONT XDISPLAYLOCATION\n";
+        return 2;
+        break;
+    case NEWENVIRON:
+        client_will_newenviron = false;
+        cout << ">RCVD WONT NEWENVIRON\n";
+        return 2;
+    */
+    default: 
+        cout << "++ Unhandled\n";
+        exit(1);
+        break;
+    }
+    return (0);
 
 }
 
