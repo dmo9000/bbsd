@@ -177,8 +177,8 @@ int PerformReadIO(Pipeline *p)
         p->pRead();
         break;
     case Pipeline_Type::PIPELINE_NVT:
-        nvt_ptr->UpdateConnectTime();
         nvt_ptr = (NVT*) p;
+        nvt_ptr->UpdateConnectTime();
         r =  nvt_ptr->pRead();
         if (!r) {
             cout << "--> EOF on NVT" << endl;
@@ -225,7 +225,8 @@ int PerformWriteIO(Pipeline *p)
         break;
     case Pipeline_Type::PIPELINE_NVT:
         nvt_ptr = (NVT*) p;
-        nvt_ptr->Debug_Write();
+        nvt_ptr->UpdateConnectTime();
+        //nvt_ptr->Debug_Write();
         w = nvt_ptr->pWrite();
         return w;
         break;

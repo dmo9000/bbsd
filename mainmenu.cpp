@@ -6,6 +6,7 @@
 #include <stdbool.h>
 #include <unistd.h>
 #include <sys/types.h>
+#include <fcntl.h>
 #include "subprocess.h"
 #include "build-id.h"
 
@@ -41,9 +42,18 @@ int main(int argc, char *argv[])
     pid_t child_process = 0;
     int rd =0, wr = 0;
     int choice = 0;
+    int flags = 0;
     bool logoff_requested = false;
+    char *fgc = NULL;
 
     setvbuf(stdout, NULL, _IONBF, 0);
+
+    sleep(1);
+
+    /* set stdin to be non blocking */
+
+    flags = fcntl(STDIN_FILENO, F_GETFL, 0);
+    fcntl(STDIN_FILENO, F_SETFL, flags | O_NONBLOCK);
 
     memset(&myhostname, 0, 256);
     gethostname((char *) &myhostname, 255);
@@ -78,7 +88,14 @@ int main(int argc, char *argv[])
         printf("\n");
         printf("Enter your choice: ");
         memset(&buffer, 0, 80);
-        fgets((char *) &buffer, 79, stdin);
+        
+        fgc = fgets((char *) &buffer, 79, stdin);
+        while (!fgc) {
+            usleep(20000);
+            fgc = fgets((char *) &buffer, 79, stdin);
+            }
+            
+
         printf("\n\n");
         printf("Your choice was: %s\n", buffer);
         printf("\n");
@@ -89,7 +106,7 @@ int main(int argc, char *argv[])
         switch (choice) {
         case 1:
 
-            /* FIXME: vt100 specific clear screen */
+            /* FIXME: VT100 specific clear screen */
 
             printf ("%c[H%c[2J", CHAR_ESCAPE, CHAR_ESCAPE);
             printf ("%c[1;1H", CHAR_ESCAPE);
@@ -136,10 +153,13 @@ int main(int argc, char *argv[])
 
 int RunSubprocess(char *myargv[])
 {
+    uint8_t stdio_buf[BUFSIZE];
     Subprocess *shell = NULL;
     int r = 0, w = 0;
     pid_t child_process = 0;
     int rd =0, wr = 0;
+    uint16_t wsize = 0;
+    int flags = 0;
 
     shell = new Subprocess();
     child_process = shell->StartProcess(myargv[0], myargv);
@@ -148,6 +168,10 @@ int RunSubprocess(char *myargv[])
         cout << "[child_process = " << child_process << "]" << endl ;
         return 0;
     }
+
+    flags = fcntl(STDIN_FILENO, F_GETFL, 0);
+    fcntl(STDIN_FILENO, F_SETFL, flags | O_NONBLOCK);
+
 
     r = shell->GetPipeFD(PARENT_READ_PIPE, READ_FD);
     w = shell->GetPipeFD(PARENT_WRITE_PIPE, WRITE_FD);
@@ -163,6 +187,29 @@ int RunSubprocess(char *myargv[])
             }
             shell->SetRbufsize(0);
         }
+
+        /* read from stdio */
+
+        rd = read(STDIN_FILENO, &stdio_buf, BUFSIZE);
+        //printf("(read from stdio = %d)\n", rd);
+
+        if (rd == -1 && errno != EAGAIN) {
+            printf ("A serious I/O error occured; %s\n", strerror(errno));
+            exit(1);
+            }
+
+        if (rd > 0) {
+            wsize = shell->GetWbufsize();
+            memcpy(shell->GetWriteBuffer(), &stdio_buf, rd);
+            shell->SetWbufsize(rd);
+            wr = shell->pWrite();
+            if (wr != rd) {
+                cout << "++ couldn't transfer " << rd << " bytes from stdin to subprocess, only " << wr << endl;
+                printf ("A serious I/O error occured; %s\n", strerror(errno));
+                exit(1);
+                }
+            }
+
         rd = shell->pRead();
     }
     return 1;

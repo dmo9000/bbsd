@@ -38,8 +38,15 @@ int NVT::RegisterSocket(int r, int w)
 
 int NVT::pRead()
 {
+    uint8_t nvt_rbuf[BUFSIZE];
     int r = 0;
     uint8_t *ptr = NULL;
+    uint16_t rsize = 0;
+    uint16_t i = 0;
+    uint16_t o = 0;
+    int optsize = 0;
+
+    ptr = GetReadBuffer();
     cout << "NVT::pRead()" << endl;
     if (!GetNextPipeline()) {
         /* there is data available, but we have nowhere to send it */
@@ -49,16 +56,40 @@ int NVT::pRead()
 
     r = Pipeline::pRead();
 
+    rsize = GetRbufsize();
+
     /* scan for IAC */
 
-    ptr = GetReadBuffer();
-    ptr = memchr(ptr, IAC, GetRbufsize());
-    if (ptr) {
+    for (i = 0 ; i < rsize ; i++) {
+        ptr = GetReadBuffer() + i;
+        switch (ptr[0]) {
+        case IAC:
             cout << "+++ IAC received in stream at offset " << ((uint8_t*) ptr - GetReadBuffer()) << endl;
-            Debug_Read();
-            exit(1);
-            }
+            //Debug_Read();
+            optsize = IAC_Process(ptr);
+            if (!optsize) {
+                cout << "+++ Error; option processing return size 0\n";
+                exit(1);
+                }
+            cout << "option size: " << optsize << endl;
+            i += (optsize - 1); /* we subtract one to line up with the next byte in the stream */
+            cout << "i now equals: " << i << endl;
+            break;
+        default:
+            nvt_rbuf[o] = ptr[0];
+            o++;
+            break;
+        }
+    }
 
+    if (rsize > o) {
+        cout << "+++ options processing reduced buffer from " << rsize << " to " << o << endl;
+        }
+
+    memset(GetReadBuffer(), 0, BUFSIZE);
+    memcpy(GetReadBuffer(), &nvt_rbuf, o);
+    SetRbufsize(o);
+    Debug_Read();
 
     return r;
 }
@@ -75,10 +106,9 @@ int NVT::pWrite()
 
     cout << "NVT::pWrite()" << endl;
 
-
     if (!line_discipline) {
         return Pipeline::pWrite();
-        }
+    }
 
     w = GetWsockfd();
     memset((char *) &nvt_wbuf, 0, BUFSIZE);
@@ -127,36 +157,6 @@ void NVT::Shutdown()
 
 }
 
-int NVT::LineDiscipline()
-{
-    cout << "NVT::LineDiscipline()" << endl;
-    int lfcount = 0;
-    char *ptr = (char *) GetWriteBuffer();
-    char *endptr = (char *) &wbuf;
-    uint16_t buflen = 0;
-    endptr += 65536;
-    buflen = endptr - ptr;
-
-    cout << "++ LF check: " << GetWbufsize() << endl;
-    Debug_Write();
-    ptr = memchr((const void *) ptr, '\n', (size_t) buflen);
-    if (!ptr) {
-        cout << "++ No linefeeds in stream" << endl;
-        return 1;
-    }
-
-    while (ptr < endptr) {
-        ptr = memchr((const void *) ptr, '\n', (size_t) buflen);
-        if (ptr) {
-            ptr++;
-            lfcount++;
-        }
-    }
-
-    cout << "++ " << lfcount << " linefeeds were found" << endl;
-    return 1;
-}
-
 int NVT::NegotiateOptions()
 {
     int w = -1;
@@ -168,13 +168,13 @@ int NVT::NegotiateOptions()
     w = GetWsockfd();
 
     memset(&options_out, 0, 64);
-    snprintf((char *) ptr, 64, "%c%c%c", IAC, IAC_DO, TERMINALTYPE); 
+    snprintf((char *) ptr, 64, "%c%c%c", IAC, IAC_DO, TERMINALTYPE);
     ptr +=3;
-    snprintf((char *) ptr, 64, "%c%c%c", IAC, IAC_DO, TSPEED); 
+    snprintf((char *) ptr, 64, "%c%c%c", IAC, IAC_DO, TSPEED);
     ptr +=3;
-    snprintf((char *) ptr, 64, "%c%c%c", IAC, IAC_DO, XDISPLAYLOCATION); 
+    snprintf((char *) ptr, 64, "%c%c%c", IAC, IAC_DO, XDISPLAYLOCATION);
     ptr +=3;
-    snprintf((char *) ptr, 64, "%c%c%c", IAC, IAC_DO, NEWENVIRON); 
+    snprintf((char *) ptr, 64, "%c%c%c", IAC, IAC_DO, NEWENVIRON);
     ptr +=3;
 
 
@@ -183,9 +183,9 @@ int NVT::NegotiateOptions()
     write_size = GetWbufsize();
     memcpy(GetWriteBuffer(), &options_out, write_size);
     if (Pipeline::pWrite() != write_size) {
-        cout << "+++ couldn't write telnet options set 1\n"; 
+        cout << "+++ couldn't write telnet options set 1\n";
         return 0;
-        } 
+    }
 
     /* now we want to wait until we have the responses */
 
@@ -208,4 +208,124 @@ time_t NVT::GetConnectTime()
 {
     return connect_time;
 }
+
+
+int NVT::IAC_Process(uint8_t *buf)
+{
+    int l = 0;
+    int rc = 0;
+
+    cout << "NVT::IAC_Process()\n";
+    if (buf[0] != IAC) {
+        cout << "+++ IAC_Process: error!\n";
+        exit(1);
+    }
+
+    l++;
+
+    switch(buf[1]) {
+    case IAC_WILL:
+        rc =  IAC_Will(buf[2]);
+        break;
+    case IAC_WONT:
+        rc =  IAC_Wont(buf[2]);
+        break;
+    case IAC_DO:
+        rc = IAC_Do(buf[2]);
+        break;
+    case IAC_DONT:
+        rc = IAC_Dont(buf[2]);
+        break;
+    default:
+        cout << "+++ Unknown telnet option command!\n";
+        exit(1);
+    }
+
+    if (!rc) {
+        cout  << "++ error in option processing\n";
+        exit(1);
+    } else {
+        l+=rc;
+    }
+
+    return l;
+}
+
+int NVT::IAC_Will(uint8_t opt)
+{
+    printf("NVT::IAC_Will(0x%02x)\n", opt);
+    switch(opt) {
+    case TERMINALTYPE:
+        client_will_terminal_type = true;
+        cout << ">RCVD WILL TERMINAL TYPE\n";
+        return 2;
+        break;
+    case TSPEED:
+        client_will_tspeed = true;
+        cout << ">RCVD WILL TSPEED\n";
+        return 2;
+        break;
+    case XDISPLAYLOCATION:
+        client_will_xdisplaylocation = true;
+        cout << ">RCVD WILL XDISPLAYLOCATION\n";
+        return 2;
+        break;
+    case NEWENVIRON:
+        client_will_newenviron = true;
+        cout << ">RCVD WILL NEWENVIRON\n";
+        return 2;
+    default:
+        cout << "++ Unhandled\n";
+        exit(1);
+        break;
+    }
+    return (0);
+}
+
+
+int NVT::IAC_Wont(uint8_t opt)
+{
+    printf("NVT::IAC_Wont(0x%02x)\n", opt);
+    switch(opt) {
+    case TERMINALTYPE:
+        client_will_terminal_type = false;
+        cout << ">RCVD WONT TERMINAL TYPE\n";
+        return 2;
+        break;
+    case TSPEED:
+        client_will_tspeed = false;
+        cout << ">RCVD WONT TSPEED\n";
+        return 2;
+        break;
+    case XDISPLAYLOCATION:
+        client_will_xdisplaylocation = false;
+        cout << ">RCVD WONT XDISPLAYLOCATION\n";
+        return 2;
+        break;
+    case NEWENVIRON:
+        client_will_newenviron = false;
+        cout << ">RCVD WONT NEWENVIRON\n";
+        return 2;
+    default: 
+        cout << "++ Unhandled\n";
+        exit(1);
+        break;
+    }
+    return (0);
+
+}
+
+int NVT::IAC_Do(uint8_t opt)
+{
+    printf("NVT::IAC_Do(0x%02x)\n", opt);
+    exit(1);
+}
+
+int NVT::IAC_Dont(uint8_t opt)
+{
+    printf("NVT::IAC_Dont(0x%02x)\n", opt);
+    exit(1);
+
+}
+
 

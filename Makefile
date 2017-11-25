@@ -1,5 +1,5 @@
 OBJS =pipeline.o subprocess.o nvt.o
-FLAGS = -std=c++11 -D__LINUX__ -fpermissive
+FLAGS = -std=c++11 -D__LINUX__ -fpermissive -g -ggdb
 
 all: mainmenu pmain
 

@@ -39,6 +39,7 @@ private:
 //    uint8_t wbuf[BUFSIZE];
     bool selected = false; 
     bool ready_for_deletion = false;
+    bool debugging = false;
 
 public:
     Pipeline();

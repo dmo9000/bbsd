@@ -34,6 +34,11 @@ private:
     bool line_discipline = true;
     time_t start_time = 0;
     time_t connect_time = 0;
+    bool client_will_terminal_type = false;
+    bool client_will_tspeed = false;
+    bool client_will_xdisplaylocation = false;
+    bool client_will_newenviron = false;
+    bool option_neg_pass_1 = false;
 
 public:
     NVT();
@@ -48,5 +53,9 @@ public:
     void SetStartTime(time_t t);
     void UpdateConnectTime();
     time_t GetConnectTime();
-
+    int IAC_Process(uint8_t *buf);
+    int IAC_Will(uint8_t);
+    int IAC_Wont(uint8_t);
+    int IAC_Do(uint8_t);
+    int IAC_Dont(uint8_t);
 };

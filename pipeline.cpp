@@ -77,13 +77,13 @@ int Pipeline::pRead()
 {
     int r = 0;
 //    cout << "Pipeline::pRead(" << rsock << ")" << endl;
-    r = read(rsock, &rbuf, BUFSIZE - rsize); 
+    r = read(rsock, &rbuf, BUFSIZE - rsize);
 //    cout << "read " << r << " bytes" << endl;
 
-    
+
     if (r == 0) {
 //            cout << "+++EOF on socket " << rsock << endl;
-            }
+    }
 
     rsize += r;
     return r;
@@ -92,21 +92,32 @@ int Pipeline::pRead()
 void Pipeline::Debug_Read()
 {
     int i = 0;
-    char buffer[17];
+    char buffer[256];
     int b = 0;
     int j = ((rsize / 16) + ((rsize % 16) ? 1 : 0)) * 16;
-    //int j = 256; 
+    uint8_t bc = 0;
+    //int j = 256;
+    //
+    memset(&buffer, 0, 64); 
 
     for (i = 0; i < j ; i++) {
+
+        if (i < rsize) {
+            printf("%c[32m", 0x1b);
+            } else {
+            printf("%c[0m", 0x1b);
+            }
+
         printf("%02x ", rbuf[i]);
         buffer[b] = (rbuf[i] >= 32 && rbuf[i] <=127 ? rbuf[i] : '.');
-        buffer[16] = '\0';
         b++;
         if (b == 16) {
-            printf(" | %s\n", buffer);
+            printf("\x1b\x5b""0m | %s\n", buffer);
             b = 0;
-            }
         }
+    }
+
+    printf("%c[0m", 0x1b);
 
     printf("\n");
 
@@ -119,19 +130,19 @@ void Pipeline::Debug_Write()
     int b = 0;
     //int j = (wsize / 16) + ((wsize % 16) ? 16 : 0);
     int j = ((wsize / 16) + ((wsize % 16) ? 1 : 0)) * 16;
-    //int j = 256; 
-    
-		cout << "Debug_Write(" << wsize << ")" << endl;
+    //int j = 256;
+
+    cout << "Debug_Write(" << wsize << ")" << endl;
     for (i = 0; i < j ; i++) {
         printf("%02x ", wbuf[i]);
         buffer[b] = (wbuf[i] >= 32 && wbuf[i] <=127 ? wbuf[i] : '.');
-        buffer[16] = '\0'; 
+        buffer[16] = '\0';
         b++;
         if (b == 16) {
             printf(" | %s\n", buffer);
             b = 0;
-            }
         }
+    }
 
     printf("\n");
 }
@@ -139,15 +150,19 @@ void Pipeline::Debug_Write()
 int Pipeline::pWrite()
 {
     int w = 0;
-    cout << "Pipeline::pWrite(" << wsock << ")" << endl;
-    cout << "wsize = " << wsize << endl;
-    cout << "wsock = " << wsock << endl;
+    if (debugging) {
+        cout << "Pipeline::pWrite(" << wsock << ")" << endl;
+        cout << "wsize = " << wsize << endl;
+        cout << "wsock = " << wsock << endl;
+    }
     w = write(wsock, &wbuf, wsize);
-    cout << "wrote " << w << " bytes" << endl;
+    if (debugging) {
+        cout << "wrote " << w << " bytes" << endl;
+    }
     if (w != wsize) {
         cout << "Short write!" << endl;
         exit(1);
-        }
+    }
     wsize -= w;
     return w;
 }
@@ -171,7 +186,7 @@ int Pipeline::Shutdown()
         /* also close write socket in case of unidirectional fd's */
         shutdown (rsock, SHUT_RDWR);
         close(wsock);
-        }
+    }
     return 1;
 }
 
