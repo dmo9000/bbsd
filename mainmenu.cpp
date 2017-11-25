@@ -7,6 +7,7 @@
 #include <unistd.h>
 #include <sys/types.h>
 #include "subprocess.h"
+#include "build-id.h"
 
 using std::cout;
 using std::endl;
@@ -65,6 +66,7 @@ int main(int argc, char *argv[])
 
 
     printf("\n\nBMI Technology Menu\n");
+    printf("Services build id #%s\n", BUILD_ID);
     printf("You are connected on node [%s]\n\n", myhostname);
 
     while (!logoff_requested) {
