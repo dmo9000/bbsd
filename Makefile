@@ -1,7 +1,10 @@
 OBJS =pipeline.o subprocess.o nvt.o
 FLAGS = -std=c++11 -D__LINUX__ -fpermissive -g -ggdb
 
-all: mainmenu pmain
+all: buildtag mainmenu pmain
+
+buildtag:
+	./build-id.sh
 
 mainmenu: mainmenu.o $(OBJS) 
 	g++ $(FLAGS) -o $@ mainmenu.o $(OBJS) 
