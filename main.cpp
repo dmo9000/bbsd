@@ -338,11 +338,16 @@ int RunIOSelectSet()
                         int w = 0;
                         if (r) {
                             cout << "Pipeline write! " << r << " bytes" << endl;
-                            memcpy(d->GetWriteBuffer(), s->GetReadBuffer(),  r);
-                            d->SetWbufsize(d->GetWbufsize() + r);
-                            w = PerformWriteIO(d);
-                            cout << "Transferred " << w << " bytes" << endl;
-                            s->SetRbufsize(0);
+                            if (d->GetWbufsize() == 0) {
+                                memcpy(d->GetWriteBuffer(), s->GetReadBuffer(),  r);
+                                d->SetWbufsize(d->GetWbufsize() + r);
+                                w = PerformWriteIO(d);
+                                cout << "Transferred " << w << " bytes" << endl;
+                                s->SetRbufsize(0);
+                                } else {
+                                cout << "+++ Pipeline was full, couldn't transfer\n";
+                                exit(1);
+                                }
                         }
                     }
                 }

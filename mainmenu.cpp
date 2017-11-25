@@ -88,13 +88,13 @@ int main(int argc, char *argv[])
         printf("\n");
         printf("Enter your choice: ");
         memset(&buffer, 0, 80);
-        
+
         fgc = fgets((char *) &buffer, 79, stdin);
         while (!fgc) {
             usleep(20000);
             fgc = fgets((char *) &buffer, 79, stdin);
-            }
-            
+        }
+
 
         printf("\n\n");
         printf("Your choice was: %s\n", buffer);
@@ -128,6 +128,7 @@ int main(int argc, char *argv[])
             myargv[0] = (char *) "/usr/bin/sz";
             myargv[1] = (char *) "-vv";
             myargv[2] = (char *) "oempkg.arc";
+            //myargv[2] = (char *) "testdata.bin";
             myargv[3] = NULL;
             if (!RunSubprocess(myargv)) {
                 cout << endl << "Error: couldn't start process" << endl;
@@ -160,6 +161,10 @@ int RunSubprocess(char *myargv[])
     int rd =0, wr = 0;
     uint16_t wsize = 0;
     int flags = 0;
+    bool process_completed = false;
+    pid_t c = 0;
+    int wstatus;
+    int options = WNOHANG;
 
     shell = new Subprocess();
     child_process = shell->StartProcess(myargv[0], myargv);
@@ -176,14 +181,18 @@ int RunSubprocess(char *myargv[])
     r = shell->GetPipeFD(PARENT_READ_PIPE, READ_FD);
     w = shell->GetPipeFD(PARENT_WRITE_PIPE, WRITE_FD);
     shell->RegisterSocket(r, w);
-    rd = shell->pRead();
+    c =  waitpid(shell->GetPID(), &wstatus, options);
 
-    while (rd > 0 || (rd < 0 && errno == EAGAIN)) {
+
+    while (c == 0) {
+        rd = shell->pRead();
+     //   printf("read_backend = %d\n", rd);
+
         if (rd > 0) {
             wr = write(STDOUT_FILENO, shell->GetReadBuffer(), rd);
             if (wr != rd) {
                 cout << "+++ wr != rd" << endl;
-                return(0);
+                exit(1);
             }
             shell->SetRbufsize(0);
         }
@@ -191,12 +200,12 @@ int RunSubprocess(char *myargv[])
         /* read from stdio */
 
         rd = read(STDIN_FILENO, &stdio_buf, BUFSIZE);
-        //printf("(read from stdio = %d)\n", rd);
+      //  printf("read_frontend = %d\n", rd);
 
         if (rd == -1 && errno != EAGAIN) {
             printf ("A serious I/O error occured; %s\n", strerror(errno));
             exit(1);
-            }
+        }
 
         if (rd > 0) {
             wsize = shell->GetWbufsize();
@@ -207,10 +216,10 @@ int RunSubprocess(char *myargv[])
                 cout << "++ couldn't transfer " << rd << " bytes from stdin to subprocess, only " << wr << endl;
                 printf ("A serious I/O error occured; %s\n", strerror(errno));
                 exit(1);
-                }
             }
+        }
 
-        rd = shell->pRead();
+        c =  waitpid(shell->GetPID(), &wstatus, options);
     }
     return 1;
 

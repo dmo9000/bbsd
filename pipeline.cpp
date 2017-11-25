@@ -77,15 +77,19 @@ int Pipeline::pRead()
 {
     int r = 0;
 //    cout << "Pipeline::pRead(" << rsock << ")" << endl;
-    r = read(rsock, &rbuf, BUFSIZE - rsize);
+    if (rsize) {
+        cout << "+++ Read buffer already contains data .. not clobbering! " << rsize << endl;
+        exit(1);
+        errno = EAGAIN;
+        return -1;
+        }
+
+    r = read(rsock, &rbuf, 8192);
 //    cout << "read " << r << " bytes" << endl;
-
-
-    if (r == 0) {
-//            cout << "+++EOF on socket " << rsock << endl;
-    }
-
-    rsize += r;
+    //rsize += r;
+    if (r > 0) { 
+        rsize = r; 
+        }
     return r;
 }
 

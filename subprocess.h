@@ -1,6 +1,8 @@
 #pragma once
 #include <unistd.h>
 #include <sys/types.h>
+#include <sys/types.h>
+#include <sys/wait.h>
 #include "pipeline.h"
 
 #define NUM_PIPES          2
@@ -31,12 +33,12 @@ private:
 public:
     Subprocess();
     ~Subprocess();
-	//pid_t StartProcess(int *pipes, const char *path, char *const *const argv);	
     pid_t StartProcess(const char *path, char **argv);
     int RegisterSocket(int r, int w);
     int pRead();
     int pWrite();
     int GetPipeFD(int pair, int channel);
     void Shutdown();
+    pid_t GetPID();
     
 };

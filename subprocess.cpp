@@ -137,3 +137,8 @@ void Subprocess::Shutdown()
     cout << "Reap status: " << c << endl;
     return;
 }
+
+pid_t Subprocess::GetPID()
+{
+    return child_pid;
+}
