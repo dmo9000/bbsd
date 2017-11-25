@@ -94,7 +94,7 @@ void Pipeline::Debug_Read()
     int i = 0;
     char buffer[17];
     int b = 0;
-    int j = ((rsize / 16) + ((rsize % 16) ? 1 : 0) * 16);
+    int j = ((rsize / 16) + ((rsize % 16) ? 1 : 0)) * 16;
     //int j = 256; 
 
     for (i = 0; i < j ; i++) {
@@ -118,7 +118,7 @@ void Pipeline::Debug_Write()
     char buffer[17];
     int b = 0;
     //int j = (wsize / 16) + ((wsize % 16) ? 16 : 0);
-    int j = ((wsize / 16) + ((wsize % 16) ? 1 : 0) * 16);
+    int j = ((wsize / 16) + ((wsize % 16) ? 1 : 0)) * 16;
     //int j = 256; 
     
 		cout << "Debug_Write(" << wsize << ")" << endl;

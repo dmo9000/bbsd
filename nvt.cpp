@@ -37,13 +37,25 @@ int NVT::RegisterSocket(int r, int w)
 int NVT::pRead()
 {
     int r = 0;
+    char *ptr = NULL;
     cout << "NVT::pRead()" << endl;
     if (!GetNextPipeline()) {
         /* there is data available, but we have nowhere to send it */
         SetState(STATE_DISCONNECTED);
+        return 0;
     }
 
     r = Pipeline::pRead();
+
+    /* scan for IAC */
+
+    ptr = GetReadBuffer();
+    ptr = memchr(ptr, IAC, GetRbufsize());
+    if (!ptr) {
+            cout << "+++ IAC received in stream\n";
+            exit(1);
+            }
+
 
     return r;
 }
