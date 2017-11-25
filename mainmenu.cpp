@@ -75,11 +75,11 @@ int main(int argc, char *argv[])
     printf ("%c[0m", CHAR_ESCAPE);
 
 
-    printf("\n\nBMI Technology Menu\n");
-    printf("Services build id #%s\n", BUILD_ID);
-    printf("You are connected on node [%s]\n\n", myhostname);
-
     while (!logoff_requested) {
+        sleep(1);
+        printf("\n\nBMI Technology Menu\n");
+        printf("Services build id #%s\n", BUILD_ID);
+        printf("You are connected on node [%s]\n\n", myhostname);
 
         printf("\t1)	Receive a fortune cookie\n");
         printf("\t2)	Download latest software release\n");
