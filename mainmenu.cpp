@@ -109,8 +109,9 @@ int main(int argc, char *argv[])
             cout << endl << endl << endl << endl;
             chdir("/usr/local/bbsd/data");
             myargv[0] = (char *) "/usr/bin/sz";
-            myargv[1] = (char *) "oempkg.arc";
-            myargv[2] = NULL;
+            myargv[1] = (char *) "-vv";
+            myargv[2] = (char *) "oempkg.arc";
+            myargv[3] = NULL;
             if (!RunSubprocess(myargv)) {
                 cout << endl << "Error: couldn't start process" << endl;
             };

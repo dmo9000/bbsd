@@ -2,6 +2,28 @@
 #include <string.h>
 #include "pipeline.h"
 
+#define IAC_SE               0xF0
+#define IAC_SB               0xFA
+#define IAC_WILL             0xFB
+#define IAC_WONT             0xFC
+#define IAC_DO               0xFD
+#define IAC_DONT             0xFE
+#define IAC                  0xFF
+
+#define BINARY              0
+#define ECHO                1
+#define SUPPRESSGOAHEAD     3
+#define STATUS              5           /* RFC859 */
+#define LOCATION            23
+#define TERMINALTYPE        0x18        /* RFC1091 & RFC1010 */
+#define WINDOWSIZE          31          /* RFC1073 */
+#define TSPEED              0x20        /* RFC1079 */
+#define TOGGLEFLOWCONTROL   33          /* RFC1372 */
+#define LINEMODE            34          /* RFC1184 */
+#define XDISPLAYLOCATION    0x23        /* RFC1096 */
+#define NEWENVIRON          0x27        /* RFC1572 */
+#define CHARSET             42          /* RFC2066 */
+
 
 class NVT : public Pipeline  
 {
@@ -10,6 +32,8 @@ protected:
 
 private:
     bool line_discipline = true;
+    time_t start_time = 0;
+    time_t connect_time = 0;
 
 public:
     NVT();
@@ -18,5 +42,11 @@ public:
     int pRead();
     int pWrite();
 	int LineDiscipline();
+    int IAC_Decode();
     void Shutdown();
+    int NegotiateOptions();
+    void SetStartTime(time_t t);
+    void UpdateConnectTime();
+    time_t GetConnectTime();
+
 };

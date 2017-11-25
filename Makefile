@@ -1,13 +1,13 @@
-OBJS = main.o pipeline.o subprocess.o nvt.o
+OBJS =pipeline.o subprocess.o nvt.o
 FLAGS = -std=c++11 -D__LINUX__ -fpermissive
 
 all: mainmenu pmain
 
-mainmenu: mainmenu.o pipeline.o subprocess.o
-	g++ $(FLAGS) -o $@ mainmenu.o pipeline.o subprocess.o
+mainmenu: mainmenu.o $(OBJS) 
+	g++ $(FLAGS) -o $@ mainmenu.o $(OBJS) 
 
-pmain:	$(OBJS)	
-	g++ $(FLAGS) -o $@ $(OBJS)
+pmain: main.o $(OBJS)	
+	g++ $(FLAGS) -o $@ main.o $(OBJS)
 
 %.o: %.cpp
 	g++ -c $(CXX_FLAGS) $(FLAGS) -o $@ $<

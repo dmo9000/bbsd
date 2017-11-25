@@ -1,5 +1,6 @@
 #include <iostream>
 #include <fcntl.h>
+#include <time.h>
 #include "nvt.h"
 using std::cout;
 using std::endl;
@@ -8,6 +9,7 @@ using std::endl;
 NVT::NVT()
 {
     cout << "NVT created" << endl;
+    SetStartTime(time(NULL));
 
 }
 
@@ -37,7 +39,7 @@ int NVT::RegisterSocket(int r, int w)
 int NVT::pRead()
 {
     int r = 0;
-    char *ptr = NULL;
+    uint8_t *ptr = NULL;
     cout << "NVT::pRead()" << endl;
     if (!GetNextPipeline()) {
         /* there is data available, but we have nowhere to send it */
@@ -51,8 +53,9 @@ int NVT::pRead()
 
     ptr = GetReadBuffer();
     ptr = memchr(ptr, IAC, GetRbufsize());
-    if (!ptr) {
-            cout << "+++ IAC received in stream\n";
+    if (ptr) {
+            cout << "+++ IAC received in stream at offset " << ((uint8_t*) ptr - GetReadBuffer()) << endl;
+            Debug_Read();
             exit(1);
             }
 
@@ -153,3 +156,56 @@ int NVT::LineDiscipline()
     cout << "++ " << lfcount << " linefeeds were found" << endl;
     return 1;
 }
+
+int NVT::NegotiateOptions()
+{
+    int w = -1;
+    uint8_t options_out[64];
+    uint8_t *ptr = (uint8_t*) &options_out;
+    uint16_t write_size = 0;
+    cout << "NVT::NegotiateOptions()" << endl;
+
+    w = GetWsockfd();
+
+    memset(&options_out, 0, 64);
+    snprintf((char *) ptr, 64, "%c%c%c", IAC, IAC_DO, TERMINALTYPE); 
+    ptr +=3;
+    snprintf((char *) ptr, 64, "%c%c%c", IAC, IAC_DO, TSPEED); 
+    ptr +=3;
+    snprintf((char *) ptr, 64, "%c%c%c", IAC, IAC_DO, XDISPLAYLOCATION); 
+    ptr +=3;
+    snprintf((char *) ptr, 64, "%c%c%c", IAC, IAC_DO, NEWENVIRON); 
+    ptr +=3;
+
+
+    /* set wsize */
+    SetWbufsize(ptr - ((uint8_t*) &options_out));
+    write_size = GetWbufsize();
+    memcpy(GetWriteBuffer(), &options_out, write_size);
+    if (Pipeline::pWrite() != write_size) {
+        cout << "+++ couldn't write telnet options set 1\n"; 
+        return 0;
+        } 
+
+    /* now we want to wait until we have the responses */
+
+    return (1);
+
+}
+
+void NVT::SetStartTime(time_t t)
+{
+    start_time = t;
+}
+
+void NVT::UpdateConnectTime()
+{
+    connect_time = time(NULL) - start_time;
+
+}
+
+time_t NVT::GetConnectTime()
+{
+    return connect_time;
+}
+

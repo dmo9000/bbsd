@@ -172,12 +172,12 @@ int PerformReadIO(Pipeline *p)
     int r = 0;
     t = p->GetPipelineType();
 
-
     switch(t) {
     case Pipeline_Type::PIPELINE_RAW:
         p->pRead();
         break;
     case Pipeline_Type::PIPELINE_NVT:
+        nvt_ptr->UpdateConnectTime();
         nvt_ptr = (NVT*) p;
         r =  nvt_ptr->pRead();
         if (!r) {
@@ -285,7 +285,13 @@ int RunIOSelectSet()
                         exit(1);
                     };
 
-                    myargv[0] = (char *) "/usr/local/bbsd/mainmenu";
+                    if (!new_nvt->NegotiateOptions()) {
+                        cout << "+++ Failed to negotation telnet options.\n";
+                        ShutdownIO();
+                        exit(1);
+                        };
+
+                    myargv[0] = (char *) "./mainmenu";
                     myargv[1] = NULL;
                     shell = new Subprocess();
                     child_process = shell->StartProcess(myargv[0], myargv);
@@ -420,6 +426,7 @@ int main(int argc, char *argv[])
         cout << "++ Couldn't register telnet_acceptor for IO" << endl;
         exit(1);
     }
+
 
     while (!terminated) {
         if (!BuildIOSelectSet()) {

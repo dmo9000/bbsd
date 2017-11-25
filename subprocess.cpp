@@ -2,6 +2,8 @@
 #include <fcntl.h>
 #include <sys/wait.h>
 #include "subprocess.h"
+#include "nvt.h"
+
 using std::cout;
 using std::endl;
 
@@ -66,11 +68,15 @@ pid_t Subprocess::StartProcess(const char *path, char **argv)
     int p = 0;
     int i = 0, j = 0;
 
+    NVT *connected_nvt = NULL;
+
 //    cout << "StartProcess(" << path << ")" << endl;
     p = pipe(pipes[PARENT_READ_PIPE]);
 //    printf("Create parent read pipe = %d\n", p);
     p = pipe(pipes[PARENT_WRITE_PIPE]);
 //    printf("Create parent write pipe = %d\n", p);
+//
+    connected_nvt = (NVT*) GetNextPipeline();
 
     child_pid = fork();
     if(!child_pid) {
@@ -89,6 +95,14 @@ pid_t Subprocess::StartProcess(const char *path, char **argv)
 
 				/* close stderr  - we may want to do something else with this later */
         close(2);
+
+        /* wait until connect_time >= 5 */
+
+        while (connected_nvt->GetConnectTime() < 5) {
+            cout << "connect_time: " << connected_nvt->GetConnectTime() << endl;
+            sleep(1);
+            }
+
         if (execv(argv[0], argv) == -1) {
             cout << "Couldn't start subprocess" << endl;
             perror("execv");
