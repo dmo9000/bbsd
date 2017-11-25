@@ -106,6 +106,10 @@ int NVT::pWrite()
 
     cout << "NVT::pWrite()" << endl;
 
+    /*
+            DEPRECATED! DON'T USE! 
+
+    */
     if (!line_discipline) {
         return Pipeline::pWrite();
     }
@@ -121,9 +125,22 @@ int NVT::pWrite()
             out_idx+=2;
             break;
         case '\n':
-            nvt_wbuf[out_idx] = '\r';
-            nvt_wbuf[out_idx+1] = '\n';
-            out_idx+=2;
+           
+            /*
+            When the Binary option has been successfully negotiated, arbitrary 8-bit characters are allowed. However, the data stream MUST still be 
+            scanned for IAC characters, any embedded Telnet commands MUST be obeyed, and data bytes equal to IAC MUST be doubled. Other character processing
+             (e.g., replacing CR by CR NUL or by CR LF) MUST NOT be done. In particular, there is no end-of-line convention (see Section 3.3.1) in binary mode. */
+ 
+            if (!server_do_binary) {
+                /* manage lines - FIXME: should check for just CR here as well as LF. Check what should happens in the case of a lone CR */
+                nvt_wbuf[out_idx] = '\r';
+                nvt_wbuf[out_idx+1] = '\n';
+                out_idx+=2;
+                } else { 
+                /* pass through */
+                nvt_wbuf[out_idx] = ptr[i];
+                out_idx++;
+                }
             break;
         default:
             nvt_wbuf[out_idx] = ptr[i];

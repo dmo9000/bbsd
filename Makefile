@@ -4,7 +4,7 @@ FLAGS = -std=c++11 -D__LINUX__ -fpermissive -g -ggdb
 all: buildtag mainmenu pmain
 
 buildtag:
-	./build-id.sh
+	./build-id.sh && make clean
 
 mainmenu: mainmenu.o $(OBJS) 
 	g++ $(FLAGS) -o $@ mainmenu.o $(OBJS) 
