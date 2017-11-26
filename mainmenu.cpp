@@ -87,8 +87,10 @@ int main(int argc, char *argv[])
         printf("You are connected on node [%s]\n\n", myhostname);
 
         printf("\t1)    Receive a fortune cookie\n");
-        printf("\t2)    Download latest software release\n");
-        printf("\t3)    Disconnect\n");
+        printf("\t2)    Download OEMPKG.ARC   (ZMODEM)\n");
+        printf("\t3)    Download OEMFONTS.ARC (ZMODEM)\n");
+        printf("\t4)    Download OEMIMAGE.ARC (ZMODEM)\n");
+        printf("\t5)    Disconnect\n");
 
         printf("\n");
         printf("Enter your choice: ");
@@ -143,14 +145,48 @@ int main(int argc, char *argv[])
             cout << endl << endl ;
             printf("Subprocess returned %d\n", sp);
             break;
+
         case 3:
-            cout << endl << endl << "Thanks for visiting BMI Technology." << endl << endl;
+            cout << endl << endl ;
+            chdir("/usr/local/bbsd/data");
+            myargv[0] = (char *) "/usr/bin/sz";
+            myargv[1] = (char *) "-vv";
+            myargv[2] = (char *) "oemfonts.arc";
+            myargv[3] = NULL;
+            sp = RunSubprocess(myargv);
+
+            if (!sp) {
+                cout << endl << "Error: couldn't start process" << endl;
+            };
+            cout << endl << endl ;
+            printf("Subprocess returned %d\n", sp);
+            break;
+
+       case 4:
+            cout << endl << endl ;
+            chdir("/usr/local/bbsd/data");
+            myargv[0] = (char *) "/usr/bin/sz";
+            myargv[1] = (char *) "-vv";
+            myargv[2] = (char *) "oemimage.arc";
+            myargv[3] = NULL;
+            sp = RunSubprocess(myargv);
+            if (!sp) {
+                cout << endl << "Error: couldn't start process" << endl;
+            };
+            cout << endl << endl ;
+            printf("Subprocess returned %d\n", sp);
+            break;
+
+        case 5:
+            cout << "Thanks for visiting BMI Technology." << endl << endl;
             logoff_requested = true;
             exit(0);
             break;
+
         default:
             cout << endl << endl << "That menu choice is invalid." << endl;
             break;
+
         }
 
     }
