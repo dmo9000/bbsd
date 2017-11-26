@@ -25,6 +25,7 @@ install:
 	cp pmain /usr/local/bbsd
 	cp mainmenu /usr/local/bbsd
 	cp systemd/bbsd.service /lib/systemd/system
+	systemctl daemon-reload
 	sudo service bbsd start
 	sudo service bbsd status
 	

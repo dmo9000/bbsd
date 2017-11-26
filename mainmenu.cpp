@@ -45,10 +45,16 @@ int main(int argc, char *argv[])
     int flags = 0;
     bool logoff_requested = false;
     char *fgc = NULL;
+    int sp = 0;
+
+    /* FIXME: we should refuse to run unless we are running as user nobody */
+
+    setenv("HOME", "/home/dan", 1);    
 
     setvbuf(stdout, NULL, _IONBF, 0);
 
     sleep(1);
+
 
     /* set stdin to be non blocking */
 
@@ -81,9 +87,9 @@ int main(int argc, char *argv[])
         printf("Services build id #%s\n", BUILD_ID);
         printf("You are connected on node [%s]\n\n", myhostname);
 
-        printf("\t1)	Receive a fortune cookie\n");
-        printf("\t2)	Download latest software release\n");
-        printf("\t3)	Disconnect\n");
+        printf("\t1)    Receive a fortune cookie\n");
+        printf("\t2)    Download latest software release\n");
+        printf("\t3)    Disconnect\n");
 
         printf("\n");
         printf("Enter your choice: ");
@@ -130,10 +136,13 @@ int main(int argc, char *argv[])
             myargv[2] = (char *) "oempkg.arc";
             //myargv[2] = (char *) "testdata.bin";
             myargv[3] = NULL;
-            if (!RunSubprocess(myargv)) {
+            sp = RunSubprocess(myargv);
+
+            if (!sp) {
                 cout << endl << "Error: couldn't start process" << endl;
             };
             cout << endl << endl << endl << endl;
+            printf("Subprocess returned %d\n", sp);
             break;
         case 3:
             cout << endl << endl << "Thanks for visiting BMI Technology." << endl << endl;

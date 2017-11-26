@@ -1,7 +1,9 @@
+#define _POSIX_SOURCE
 #include <iostream>
 #include <csignal>
 #include <vector>
 #include <sys/types.h>
+#include <pwd.h>
 #include <sys/socket.h>
 #include <netinet/in.h>
 #include <string.h>
@@ -19,19 +21,19 @@ using std::vector;
 
 		This code will probably never need to run on Windows, but if it ever does, bear
 		in mind that Windows treats "text" and "binary" file modes differently, but UNIX/Linux
-		don't. Windows opens stdout, stderr etc. in text mode by default. 
+		don't. Windows opens stdout, stderr etc. in text mode by default.
 
 			https://msdn.microsoft.com/en-us/library/ktss1a9b.aspx
 
 		So to avoid translating CRLF to CRCRLF when in text mode, you'd want to call _setmode()
-		on the filehandle to switch it to binary. 
+		on the filehandle to switch it to binary.
 
 */
 
 static void myerror(const char *msg);
 
 #define LISTEN_PORT     8024
-#define MAX_PIPELINES   128 
+#define MAX_PIPELINES   128
 
 /* this can all go into a controller class when more mature */
 
@@ -42,6 +44,28 @@ fd_set socketset;
 struct timeval timeout;
 int sockfd = -1;         /* socket for TCP listener */
 bool terminated = false;
+
+
+uid_t name_to_uid(char const *name)
+{
+    if (!name) {
+        return -1;
+    }
+
+    long const buflen = sysconf(_SC_GETPW_R_SIZE_MAX);
+
+    if (buflen == -1) {
+        return -1;
+    }
+    // requires c99
+    char buf[buflen];
+    struct passwd pwbuf, *pwbufp;
+    if (0 != getpwnam_r(name, &pwbuf, buf, buflen, &pwbufp)
+            || !pwbufp) {
+        return -1;
+    }
+    return pwbufp->pw_uid;
+}
 
 static void myerror(const char *msg)
 {
@@ -290,7 +314,7 @@ int RunIOSelectSet()
                         cout << "+++ Failed to negotation telnet options.\n";
                         ShutdownIO();
                         exit(1);
-                        };
+                    };
 
                     myargv[0] = (char *) "./mainmenu";
                     myargv[1] = NULL;
@@ -344,10 +368,10 @@ int RunIOSelectSet()
                                 w = PerformWriteIO(d);
                                 cout << "Transferred " << w << " bytes" << endl;
                                 s->SetRbufsize(0);
-                                } else {
+                            } else {
                                 cout << "+++ Pipeline was full, couldn't transfer\n";
                                 exit(1);
-                                }
+                            }
                         }
                     }
                 }
@@ -384,10 +408,32 @@ int main(int argc, char *argv[])
     char *myargv[64];
     int r =0, w = 0;
     int optval = 1 ;
+    uid_t nobody_uid = 0;
+
+    if (getuid() != 0) {
+        cout << "Error: this program must be started as root.\n";
+        exit(1);
+    }
+
+    nobody_uid = name_to_uid("dan");
+    
+    if (nobody_uid == -1) {
+        cout << "Error: couldn't get UID for nobody user\n";
+        exit(1);
+        }
+
+    if (setuid(nobody_uid) != 0) {
+        cout << "Error: getting nobody_uid ; " << strerror(errno); 
+        exit(1); 
+        }
+
+
+    /* probably need some handlers for more signals ... */
 
     signal(SIGINT,int_handler);
 
     chdir("/usr/local/bbsd");
+
 
     cout << "Initializing listener socket on port " << LISTEN_PORT << endl;
 
