@@ -49,7 +49,6 @@ int main(int argc, char *argv[])
 
     /* FIXME: we should refuse to run unless we are running as user nobody */
 
-    setenv("HOME", "/home/dan", 1);    
 
     setvbuf(stdout, NULL, _IONBF, 0);
 

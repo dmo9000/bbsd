@@ -415,7 +415,7 @@ int main(int argc, char *argv[])
         exit(1);
     }
 
-    nobody_uid = name_to_uid("dan");
+    nobody_uid = name_to_uid("nobody");
     
     if (nobody_uid == -1) {
         cout << "Error: couldn't get UID for nobody user\n";
