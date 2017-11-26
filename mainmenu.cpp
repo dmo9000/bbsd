@@ -128,7 +128,7 @@ int main(int argc, char *argv[])
             cout << endl << endl << endl << endl;
             break;
         case 2:
-            cout << endl << endl << endl << endl;
+            cout << endl << endl ;
             chdir("/usr/local/bbsd/data");
             myargv[0] = (char *) "/usr/bin/sz";
             myargv[1] = (char *) "-vv";
@@ -140,7 +140,7 @@ int main(int argc, char *argv[])
             if (!sp) {
                 cout << endl << "Error: couldn't start process" << endl;
             };
-            cout << endl << endl << endl << endl;
+            cout << endl << endl ;
             printf("Subprocess returned %d\n", sp);
             break;
         case 3:
