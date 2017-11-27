@@ -153,7 +153,7 @@ int main(int argc, char *argv[])
 
             cout << endl << endl ;
             chdir("/usr/local/bbsd/data");
-            myargv[0] = (char *) "/usr/bin/BitchX";
+            myargv[0] = (char *) "/usr/bin/epic";
             myargv[1] = (char *) "irc.freenode.net";
             myargv[2] = NULL;
             sp = RunSubprocess(myargv);
