@@ -408,22 +408,22 @@ int main(int argc, char *argv[])
     char *myargv[64];
     int r =0, w = 0;
     int optval = 1 ;
-    uid_t nobody_uid = 0;
+    uid_t bootstrap_uid = 0;
 
     if (getuid() != 0) {
         cout << "Error: this program must be started as root.\n";
         exit(1);
     }
 
-    nobody_uid = name_to_uid("nobody");
+    bootstrap_uid = name_to_uid("bootstrap");
     
-    if (nobody_uid == -1) {
-        cout << "Error: couldn't get UID for nobody user\n";
+    if (bootstrap_uid == -1) {
+        cout << "Error: couldn't get UID for bootstrap user\n";
         exit(1);
         }
 
-    if (setuid(nobody_uid) != 0) {
-        cout << "Error: getting nobody_uid ; " << strerror(errno); 
+    if (setuid(bootstrap_uid) != 0) {
+        cout << "Error: getting bootstrap_uid ; " << strerror(errno); 
         exit(1); 
         }
 

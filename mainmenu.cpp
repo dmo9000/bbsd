@@ -7,6 +7,7 @@
 #include <unistd.h>
 #include <sys/types.h>
 #include <fcntl.h>
+#include <sys/ioctl.h>
 #include "subprocess.h"
 #include "build-id.h"
 
@@ -68,8 +69,8 @@ int main(int argc, char *argv[])
     printf ("\n");
 
     myargv[0] = (char *) "/usr/bin/cat";
-    //myargv[1] = (char *) "/usr/local/bbsd/data/k1shack.ans";
-    myargv[1] = (char *) "/usr/local/bbsd/data/bmilogo.ans";
+    myargv[1] = (char *) "/usr/local/bbsd/data/k1shack.ans";
+    //myargv[1] = (char *) "/usr/local/bbsd/data/bmilogo.ans";
     myargv[2] = NULL;
     if (!RunSubprocess(myargv)) {
         cout << endl << "Error: couldn't start process" << endl;
@@ -86,12 +87,29 @@ int main(int argc, char *argv[])
         printf("\n\nBMI Technology Menu\n");
         printf("Services build id #%s\n", BUILD_ID);
         printf("You are connected on node [%s]\n\n", myhostname);
+        struct winsize size;
+
+        ioctl(STDOUT_FILENO,TIOCGWINSZ,&size);
+        printf("old terminal size = (%d, %d)(%d, %d)\n\n", size.ws_col, size.ws_row, size.ws_xpixel, size.ws_ypixel);  
+
+        size.ws_col = 80;
+        size.ws_row = 24;
+        size.ws_xpixel = 0;
+        size.ws_ypixel = 0;
+
+        ioctl(STDOUT_FILENO,TIOCSWINSZ,&size);
+
+        ioctl(STDOUT_FILENO,TIOCGWINSZ,&size);
+        printf("new terminal size = (%d, %d)(%d, %d)\n\n", size.ws_col, size.ws_row, size.ws_xpixel, size.ws_ypixel);  
+
+        printf("\n");
 
         printf("\t1)    Receive a fortune cookie\n");
-        printf("\t2)    Download OEMPKG.ARC   (ZMODEM)\n");
-        printf("\t3)    Download OEMFONTS.ARC (ZMODEM)\n");
-        printf("\t4)    Download OEMIMAGE.ARC (ZMODEM)\n");
-        printf("\t5)    Disconnect\n");
+        printf("\t2)    IRC Chat (#freenode)\n");
+        printf("\t3)    Download OEMPKG.ARC   (ZMODEM)\n");
+        printf("\t4)    Download OEMFONTS.ARC (ZMODEM)\n");
+        printf("\t5)    Download OEMIMAGE.ARC (ZMODEM)\n");
+        printf("\t6)    Disconnect\n");
 
         printf("\n");
         printf("Enter your choice: ");
@@ -130,7 +148,26 @@ int main(int argc, char *argv[])
             };
             cout << endl << endl << endl << endl;
             break;
+
         case 2:
+
+            cout << endl << endl ;
+            chdir("/usr/local/bbsd/data");
+            myargv[0] = (char *) "/usr/bin/BitchX";
+            myargv[1] = (char *) "irc.freenode.net";
+            myargv[2] = NULL;
+            sp = RunSubprocess(myargv);
+
+            if (!sp) {
+                cout << endl << "Error: couldn't start process" << endl;
+            };
+            cout << endl << endl ;
+            printf("Subprocess returned %d\n", sp);
+            break;
+
+
+
+        case 3:
             cout << endl << endl ;
             chdir("/usr/local/bbsd/data");
             myargv[0] = (char *) "/usr/bin/sz";
@@ -147,7 +184,7 @@ int main(int argc, char *argv[])
             printf("Subprocess returned %d\n", sp);
             break;
 
-        case 3:
+        case 4:
             cout << endl << endl ;
             chdir("/usr/local/bbsd/data");
             myargv[0] = (char *) "/usr/bin/sz";
@@ -163,7 +200,7 @@ int main(int argc, char *argv[])
             printf("Subprocess returned %d\n", sp);
             break;
 
-       case 4:
+       case 5:
             cout << endl << endl ;
             chdir("/usr/local/bbsd/data");
             myargv[0] = (char *) "/usr/bin/sz";
@@ -178,7 +215,7 @@ int main(int argc, char *argv[])
             printf("Subprocess returned %d\n", sp);
             break;
 
-        case 5:
+        case 6:
             cout << "Thanks for visiting BMI Technology." << endl << endl;
             logoff_requested = true;
             exit(0);
