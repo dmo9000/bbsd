@@ -1,0 +1,70 @@
+Looking at the standard linux client/server negotiation a little closer, we see: 
+
+< 0x0	*ff fd 18*ff fd 20*ff fd 23*ff fd 27
+> 0x0	*ff fb 18*ff fb 20*ff fb 23*ff fb 27
+
+1) server request DO TERMINAL TYPE
+2) client WILL TERMINAL TYPE
+3) server request DO TSPEED
+4) client will TSPEED
+5) server requests XDISPLOC
+6) client will XDISPLOC
+7) server requests NEW-ENVIRON
+8) client will NEW-ENVIRON
+
+
+	RCVD DO TERMINAL TYPE
+	SENT WILL TERMINAL TYPE
+	RCVD DO TSPEED
+	SENT WILL TSPEED
+	RCVD DO XDISPLOC
+	SENT WILL XDISPLOC
+	RCVD DO NEW-ENVIRON
+	SENT WILL NEW-ENVIRON
+
+
+< 0x0	*ff fa 20 01*ff f0*ff fa 23 01*ff f0*ff fa 27 01
+< 0x10	*ff f0*ff fa 18 01*ff f0
+RCVD IAC SB TERMINAL-SPEED SEND
+SENT IAC SB TERMINAL-SPEED IS 38400,38400
+RCVD IAC SB X-DISPLAY-LOCATION SEND
+SENT IAC SB X-DISPLAY-LOCATION IS "fc25:0"
+RCVD IAC SB NEW-ENVIRON SEND 
+SENT IAC SB NEW-ENVIRON IS VAR "DISPLAY" VALUE "fc25:0"
+RCVD IAC SB TERMINAL-TYPE SEND
+SENT IAC SB TERMINAL-TYPE IS "XTERM-256COLOR"
+> 0x0	*ff fa 20 00 33 38 34 30 30 2c 33 38 34 30 30*ff
+> 0x10	 f0*ff fa 23 00 66 63 32 35 3a 30*ff f0*ff fa 27
+> 0x20	 00 00 44 49 53 50 4c 41 59 01 66 63 32 35 3a 30
+> 0x30	*ff f0*ff fa 18 00 58 54 45 52 4d 2d 32 35 36 43
+> 0x40	 4f 4c 4f 52*ff f0
+< 0x0	*ff fb 03*ff fd 01*ff fd 1f*ff fb 05*ff fd 21
+RCVD WILL SUPPRESS GO AHEADIACiIA
+SENT DO SUPPRESS GO AHEAD
+RCVD DO ECHO
+SENT WONT ECHO
+RCVD DO NAWS
+SENT WILL NAWS
+SENT IAC SB NAWS 0 178 (178) 0 44 (44)
+RCVD WILL STATUS
+SENT DO STATUS
+RCVD DO LFLOW
+SENT WILL LFLOW
+> 0x0	*ff fd 03*ff fc 01*ff fb 1f*ff fa 1f 00 b2 00 2c
+> 0x10	*ff f0*ff fd 05*ff fb 21
+< 0x0	*ff fb 01 0d 0a 4b 65 72 6e 65 6c 20 34 2e 31 31
+< 0x10	 2e 31 30 2d 32 30 30 2e 66 63 32 35 2e 78 38 36
+< 0x20	 5f 36 34 20 6f 6e 20 61 6e 20 78 38 36 5f 36 34
+< 0x30	 20 28 34 29 0d 0a
+RCVD WILL ECHO
+SENT DO ECHO
+> 0x0	*ff fd 01
+
+Kernel 4.11.10-200.fc25.x86_64 on an x86_64 (4)
+< 0x0	 66 63 32 35 20 6c 6f 67 69 6e 3a 20
+fc25 login: 
+
+
+
+    flags = fcntl(STDIO_FILENO, F_GETFL, 0);
+    fcntl(STDIO_FILENO, F_SETFL, flags | O_NONBLOCK);
