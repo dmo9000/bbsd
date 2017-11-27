@@ -165,10 +165,11 @@ int main(int argc, char *argv[])
             printf("Subprocess returned %d\n", sp);
             break;
 
-
-
         case 3:
             cout << endl << endl ;
+            printf ("%c[H%c[2J", CHAR_ESCAPE, CHAR_ESCAPE);
+            printf ("%c[1;1H", CHAR_ESCAPE);
+
             chdir("/usr/local/bbsd/data");
             myargv[0] = (char *) "/usr/bin/sz";
             myargv[1] = (char *) "-vv";
@@ -186,6 +187,10 @@ int main(int argc, char *argv[])
 
         case 4:
             cout << endl << endl ;
+            printf ("%c[H%c[2J", CHAR_ESCAPE, CHAR_ESCAPE);
+            printf ("%c[1;1H", CHAR_ESCAPE);
+
+
             chdir("/usr/local/bbsd/data");
             myargv[0] = (char *) "/usr/bin/sz";
             myargv[1] = (char *) "-vv";
@@ -201,6 +206,9 @@ int main(int argc, char *argv[])
             break;
 
        case 5:
+            printf ("%c[H%c[2J", CHAR_ESCAPE, CHAR_ESCAPE);
+            printf ("%c[1;1H", CHAR_ESCAPE);
+
             cout << endl << endl ;
             chdir("/usr/local/bbsd/data");
             myargv[0] = (char *) "/usr/bin/sz";
