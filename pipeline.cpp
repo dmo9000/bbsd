@@ -174,7 +174,7 @@ int Pipeline::pWrite()
         if (w == -1) {
             /* error */
             cout << "Error: " << errno << endl;
-            if (errno == ECONNRESET) {
+            if (errno == ECONNRESET || errno == 104) {
                 SetState(STATE_DISCONNECTED);
                 next_pipeline->SetState(STATE_DISCONNECTED);
                 return 0;
