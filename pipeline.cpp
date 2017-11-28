@@ -164,7 +164,7 @@ int Pipeline::pWrite()
         cout << "wrote " << w << " bytes" << endl;
     }
     if (w != wsize) {
-        cout << "Short write!" << endl;
+        cout << "Short write! [" << w << "]" << endl;
         exit(1);
     }
     wsize -= w;
