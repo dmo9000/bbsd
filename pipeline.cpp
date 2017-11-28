@@ -165,6 +165,13 @@ int Pipeline::pWrite()
     }
     if (w != wsize) {
         cout << "Short write! [" << w << "]" << endl;
+        if (w == 0) {
+            /* probably EOF */
+            cout << "Closing pipeline (and partner) on unexpected EOF\n";
+            SetState(STATE_DISCONNECTED); 
+            next_pipeline->SetState(STATE_DISCONNECTED);
+            return 0;
+            }
         exit(1);
     }
     wsize -= w;
