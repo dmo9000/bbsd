@@ -89,18 +89,15 @@ int main(int argc, char *argv[])
         printf("You are connected on node [%s]\n\n", myhostname);
         struct winsize size;
 
-        ioctl(STDOUT_FILENO,TIOCGWINSZ,&size);
-        printf("old terminal size = (%d, %d)(%d, %d)\n\n", size.ws_col, size.ws_row, size.ws_xpixel, size.ws_ypixel);  
-
         size.ws_col = 80;
         size.ws_row = 24;
         size.ws_xpixel = 0;
         size.ws_ypixel = 0;
 
         ioctl(STDOUT_FILENO,TIOCSWINSZ,&size);
-
         ioctl(STDOUT_FILENO,TIOCGWINSZ,&size);
-        printf("new terminal size = (%d, %d)(%d, %d)\n\n", size.ws_col, size.ws_row, size.ws_xpixel, size.ws_ypixel);  
+        printf("[Terminal = %s:%dx%d]\n", (const char *) get_ttytype(TERM)),  
+                    size.ws_col, size.ws_row, size.ws_xpixel, size.ws_ypixel);  
 
         printf("\n");
 
