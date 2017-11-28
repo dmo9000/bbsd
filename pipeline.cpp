@@ -170,6 +170,13 @@ int Pipeline::pWrite()
     }
     if (w != wsize) {
         cout << "Short write! [" << w << "]" << endl;
+
+        if (w == -1) {
+            /* error */
+            cout << "Error: " << strerror(errno) << "\n";
+            exit(1);
+            }
+
         if (w == 0) {
             /* probably EOF */
             cout << "Closing pipeline (and partner) on unexpected EOF\n";
