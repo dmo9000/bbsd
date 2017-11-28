@@ -31,6 +31,7 @@ char myhostname[256];
     on the filehandle to switch it to binary.
 
 */
+char terminal_type[80];
 
 int RunSubprocess(char *argv[]);
 
@@ -47,14 +48,21 @@ int main(int argc, char *argv[])
     bool logoff_requested = false;
     char *fgc = NULL;
     int sp = 0;
+    char *env_v = NULL;
 
     /* FIXME: we should refuse to run unless we are running as user nobody */
 
-
     setvbuf(stdout, NULL, _IONBF, 0);
-
     sleep(1);
 
+    memset(&terminal_type, 0, 80);
+    setenv("TERM", "ansi", 0);
+    env_v = secure_getenv("TERM");
+
+    if (env_v  != NULL) {
+        strncpy((char *) &terminal_type,  env_v, strlen(env_v));
+        printf("[Auto-detected terminal type]\n");
+    }
 
     /* set stdin to be non blocking */
 
@@ -86,7 +94,7 @@ int main(int argc, char *argv[])
         sleep(1);
         printf("\n\nBMI Technology Menu\n");
         printf("Services build id #%s\n", BUILD_ID);
-        printf("You are connected on node [%s]\n\n", myhostname);
+        printf("You are connected on node [%s]\n", myhostname);
         struct winsize size;
 
         size.ws_col = 80;
@@ -96,8 +104,8 @@ int main(int argc, char *argv[])
 
         ioctl(STDOUT_FILENO,TIOCSWINSZ,&size);
         ioctl(STDOUT_FILENO,TIOCGWINSZ,&size);
-        printf("[Terminal = %s:%dx%d]\n", (const char *) get_ttytype(TERM)),  
-                    size.ws_col, size.ws_row, size.ws_xpixel, size.ws_ypixel);  
+        printf("Terminal type is %s:%dx%d\n\n", (const char *) terminal_type,
+               size.ws_col, size.ws_row, size.ws_xpixel, size.ws_ypixel);
 
         printf("\n");
 
@@ -114,7 +122,7 @@ int main(int argc, char *argv[])
 
         fgc = fgets((char *) &buffer, 79, stdin);
         while (!fgc) {
-            usleep(20000);
+        usleep(20000);
             fgc = fgets((char *) &buffer, 79, stdin);
         }
 
@@ -127,11 +135,11 @@ int main(int argc, char *argv[])
         choice = atoi(buffer);
 
         switch (choice) {
-        case 1:
+    case 1:
 
-            /* FIXME: VT100 specific clear screen */
+        /* FIXME: VT100 specific clear screen */
 
-            printf ("%c[H%c[2J", CHAR_ESCAPE, CHAR_ESCAPE);
+        printf ("%c[H%c[2J", CHAR_ESCAPE, CHAR_ESCAPE);
             printf ("%c[1;1H", CHAR_ESCAPE);
             /* reset terminal pen & paper colors */
             printf ("%c[0m", CHAR_ESCAPE);
@@ -202,7 +210,7 @@ int main(int argc, char *argv[])
             printf("Subprocess returned %d\n", sp);
             break;
 
-       case 5:
+        case 5:
             printf ("%c[H%c[2J", CHAR_ESCAPE, CHAR_ESCAPE);
             printf ("%c[1;1H", CHAR_ESCAPE);
 
@@ -273,7 +281,7 @@ int RunSubprocess(char *myargv[])
 
     while (c == 0) {
         rd = shell->pRead();
-     //   printf("read_backend = %d\n", rd);
+        //   printf("read_backend = %d\n", rd);
 
         if (rd > 0) {
             wr = write(STDOUT_FILENO, shell->GetReadBuffer(), rd);
@@ -287,7 +295,7 @@ int RunSubprocess(char *myargv[])
         /* read from stdio */
 
         rd = read(STDIN_FILENO, &stdio_buf, BUFSIZE);
-      //  printf("read_frontend = %d\n", rd);
+        //  printf("read_frontend = %d\n", rd);
 
         if (rd == -1 && errno != EAGAIN) {
             printf ("A serious I/O error occured; %s\n", strerror(errno));
