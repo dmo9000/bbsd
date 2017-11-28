@@ -82,14 +82,14 @@ int Pipeline::pRead()
         exit(1);
         errno = EAGAIN;
         return -1;
-        }
+    }
 
     r = read(rsock, &rbuf, 8192);
 //    cout << "read " << r << " bytes" << endl;
     //rsize += r;
-    if (r > 0) { 
-        rsize = r; 
-        }
+    if (r > 0) {
+        rsize = r;
+    }
     return r;
 }
 
@@ -102,15 +102,15 @@ void Pipeline::Debug_Read()
     uint8_t bc = 0;
     //int j = 256;
     //
-    memset(&buffer, 0, 64); 
+    memset(&buffer, 0, 64);
 
     for (i = 0; i < j ; i++) {
 
         if (i < rsize) {
             printf("%c[32m", 0x1b);
-            } else {
+        } else {
             printf("%c[0m", 0x1b);
-            }
+        }
 
         printf("%02x ", rbuf[i]);
         buffer[b] = (rbuf[i] >= 32 && rbuf[i] <=127 ? rbuf[i] : '.');
@@ -159,10 +159,10 @@ int Pipeline::pWrite()
     }
 
     if (!wsize) {
-            cout << "++ was requested to write 0 bytes, doesn't make sense!!\n";
-            exit(1);
-            return 0;
-            }
+        cout << "++ was requested to write 0 bytes, doesn't make sense!!\n";
+        exit(1);
+        return 0;
+    }
 
     w = write(wsock, &wbuf, wsize);
     if (debugging) {
@@ -174,16 +174,21 @@ int Pipeline::pWrite()
         if (w == -1) {
             /* error */
             cout << "Error: " << strerror(errno) << "\n";
-            exit(1);
+            if (errno == ECONNRESET) {
+                SetState(STATE_DISCONNECTED);
+                next_pipeline->SetState(STATE_DISCONNECTED);
+                return 0;
             }
+            exit(1);
+        }
 
         if (w == 0) {
             /* probably EOF */
             cout << "Closing pipeline (and partner) on unexpected EOF\n";
-            SetState(STATE_DISCONNECTED); 
+            SetState(STATE_DISCONNECTED);
             next_pipeline->SetState(STATE_DISCONNECTED);
             return 0;
-            }
+        }
         //exit(1);
     }
     wsize -= w;

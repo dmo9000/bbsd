@@ -12,6 +12,7 @@
 #include <stdlib.h>         // for exit()
 #include "nvt.h"
 #include "subprocess.h"
+#include "build-id.h"
 
 using std::cout;
 using std::endl;
@@ -431,6 +432,7 @@ int main(int argc, char *argv[])
     chdir("/usr/local/bbsd");
 
 
+    cout << "BBSD build-id #" << BUILD_ID << endl;
     cout << "Initializing listener socket on port " << LISTEN_PORT << endl;
 
     sockfd = socket(AF_INET, SOCK_STREAM, 0);
