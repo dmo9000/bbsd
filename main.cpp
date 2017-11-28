@@ -318,8 +318,8 @@ int RunIOSelectSet()
 
                     if (!new_nvt->NegotiateOptions()) {
                         cout << "+++ Failed to negotation telnet options.\n";
-                        ShutdownIO();
-                        exit(1);
+                        new_nvt->SetState(STATE_DISCONNECTED);        
+                        break;
                     };
 
                     myargv[0] = (char *) "./mainmenu";
