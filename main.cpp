@@ -286,13 +286,18 @@ int RunIOSelectSet()
 //    cout << "RunIOSelectSet()" << endl;
     s = select (FD_SETSIZE, &socketset, NULL, NULL, &timeout);
     switch (s) {
+    case -1:
+        /* I/O error */
+        perror("select()");
+        exit(1);
+        break;
     case 0:
         /* timeout, no I/O - that is okay */
 //        cout << "Timeout" << endl;
         usleep(1000);
         return 1;
         break;
-    case 1:
+    default:
         /* input received on fd */
         //cout << "Input was received via select()" << endl;
         for(iter = SelectablePipelines.begin(), end = SelectablePipelines.end() ; iter != end; iter++) {
@@ -379,15 +384,6 @@ int RunIOSelectSet()
             }
         }
         break;
-    case -1:
-        /* I/O error */
-        perror("select()");
-        exit(1);
-        break;
-    default:
-        cout << "Unexpected return code " << s << " received from select()" << endl;
-        exit(1);
-        break;
     }
 
     /* all okay */
@@ -416,16 +412,16 @@ int main(int argc, char *argv[])
     }
 
     bootstrap_uid = name_to_uid("bootstrap");
-    
+
     if (bootstrap_uid == -1) {
         cout << "Error: couldn't get UID for bootstrap user\n";
         exit(1);
-        }
+    }
 
     if (setuid(bootstrap_uid) != 0) {
-        cout << "Error: getting bootstrap_uid ; " << strerror(errno); 
-        exit(1); 
-        }
+        cout << "Error: getting bootstrap_uid ; " << strerror(errno);
+        exit(1);
+    }
 
 
     /* probably need some handlers for more signals ... */
