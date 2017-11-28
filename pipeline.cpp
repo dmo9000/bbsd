@@ -155,10 +155,15 @@ int Pipeline::pWrite()
 {
     int w = 0;
     if (debugging) {
-        cout << "Pipeline::pWrite(" << wsock << ")" << endl;
-        cout << "wsize = " << wsize << endl;
-        cout << "wsock = " << wsock << endl;
+        cout << "Pipeline::pWrite(" << wsock << ":" << wsize << ")" << endl;
     }
+
+    if (!wsize) {
+            cout << "++ was requested to write 0 bytes, doesn't make sense!!\n";
+            exit(1);
+            return 0;
+            }
+
     w = write(wsock, &wbuf, wsize);
     if (debugging) {
         cout << "wrote " << w << " bytes" << endl;
@@ -172,7 +177,7 @@ int Pipeline::pWrite()
             next_pipeline->SetState(STATE_DISCONNECTED);
             return 0;
             }
-        exit(1);
+        //exit(1);
     }
     wsize -= w;
     return w;
