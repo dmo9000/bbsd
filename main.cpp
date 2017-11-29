@@ -207,8 +207,13 @@ int PerformReadIO(Pipeline *p)
         r =  nvt_ptr->pRead();
         if (!r) {
             cout << "--> EOF on NVT" << endl;
-            nvt_ptr->GetNextPipeline()->SetReadyForDeletion();
-            nvt_ptr->GetNextPipeline()->SetState(STATE_DISCONNECTED);
+            if (nvt_ptr->GetNextPipeline()) {
+                cout << "--> Marking connected peer for deletion" << endl;
+                nvt_ptr->GetNextPipeline()->SetReadyForDeletion();
+                nvt_ptr->GetNextPipeline()->SetState(STATE_DISCONNECTED);
+            } else {
+                cout << "--> EOF on NVT, nothing attached" << endl;
+            }
             nvt_ptr->SetReadyForDeletion();
             nvt_ptr->SetState(STATE_DISCONNECTED);
         }
@@ -318,7 +323,7 @@ int RunIOSelectSet()
 
                     if (!new_nvt->NegotiateOptions()) {
                         cout << "+++ Failed to negotation telnet options.\n";
-                        new_nvt->SetState(STATE_DISCONNECTED);        
+                        new_nvt->SetState(STATE_DISCONNECTED);
                         break;
                     };
 
