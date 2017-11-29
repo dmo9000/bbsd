@@ -217,7 +217,7 @@ int PerformReadIO(Pipeline *p)
             nvt_ptr->SetReadyForDeletion();
             nvt_ptr->SetState(STATE_DISCONNECTED);
         }
-        nvt_ptr->Debug_Read();
+        //nvt_ptr->Debug_Read();
         return r;
         break;
     case Pipeline_Type::PIPELINE_SUBPROCESS:
@@ -230,7 +230,7 @@ int PerformReadIO(Pipeline *p)
             sub_ptr->SetReadyForDeletion();
             sub_ptr->SetState(STATE_DISCONNECTED);
         }
-        sub_ptr->Debug_Read();
+        //sub_ptr->Debug_Read();
         return r;
         break;
     default:
@@ -262,7 +262,7 @@ int PerformWriteIO(Pipeline *p)
         break;
     case Pipeline_Type::PIPELINE_SUBPROCESS:
         sub_ptr = (Subprocess*) p;
-        sub_ptr->Debug_Write();
+        //sub_ptr->Debug_Write();
         w = sub_ptr->pWrite();
         return w;
         break;

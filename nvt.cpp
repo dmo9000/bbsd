@@ -65,7 +65,7 @@ int NVT::pRead()
         switch (ptr[0]) {
         case IAC:
             cout << "+++ IAC received in stream at offset " << ((uint8_t*) ptr - GetReadBuffer()) << endl;
-            Debug_Read();
+            //Debug_Read();
             optsize = IAC_Process(ptr);
             if (!optsize) {
                 cout << "+++ Error; option processing return size 0\n";
@@ -89,7 +89,7 @@ int NVT::pRead()
     memset(GetReadBuffer(), 0, BUFSIZE);
     memcpy(GetReadBuffer(), &nvt_rbuf, o);
     SetRbufsize(o);
-    Debug_Read();
+    //Debug_Read();
 
     return r;
 }
