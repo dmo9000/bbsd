@@ -383,7 +383,7 @@ int RunIOSelectSet()
                                 int wr = d->GetWbufsize();
                                 cout << "+++ Pipeline was full, couldn't transfer, trying to flush write pipe\n";
                                 w = PerformWriteIO(d);
-                                if (w != wr) {
+                                if (w != wr && errno != EAGAIN) {
                                         cout << "+++ Write pipe couldn't be drained!\n";
                                         exit(1);
                                     }
