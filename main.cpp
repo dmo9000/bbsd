@@ -381,7 +381,6 @@ int RunIOSelectSet()
                                 s->SetRbufsize(0);
                             } else {
                                 cout << "+++ Pipeline was full, couldn't transfer\n";
-                                exit(1);
                             }
                         }
                     }
