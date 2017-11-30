@@ -380,14 +380,7 @@ int RunIOSelectSet()
                                 cout << "Transferred " << w << " bytes" << endl;
                                 s->SetRbufsize(0);
                             } else {
-                                int wr = d->GetWbufsize();
-                                cout << "+++ Pipeline was full, couldn't transfer, trying to flush write pipe\n";
-                                w = PerformWriteIO(d);
-                                if (w != wr && errno != EAGAIN) {
-                                        cout << "+++ Write pipe couldn't be drained!\n";
-                                        perror("error: ");
-                                        exit(1);
-                                    }
+                                cout << "+++ Pipeline was full, couldn't transfer, write deferred\n";
                             }
                         }
                     }

@@ -57,6 +57,7 @@ int main(int argc, char *argv[])
 
     memset(&terminal_type, 0, 80);
     setenv("TERM", "ansi", 0);
+    setenv("HOME", "/home/bootstrap", 1);
     env_v = secure_getenv("TERM");
 
     if (env_v  != NULL) {
@@ -110,7 +111,7 @@ int main(int argc, char *argv[])
         printf("\n");
 
         printf("\t1)    Receive a fortune cookie\n");
-        printf("\t2)    IRC Chat (#freenode)\n");
+        printf("\t2)    Play ZORK I\n");
         printf("\t3)    Download OEMPKG.ARC   (ZMODEM)\n");
         printf("\t4)    Download OEMFONTS.ARC (ZMODEM)\n");
         printf("\t5)    Download OEMIMAGE.ARC (ZMODEM)\n");
@@ -158,8 +159,10 @@ int main(int argc, char *argv[])
 
             cout << endl << endl ;
             chdir("/usr/local/bbsd/data");
-            myargv[0] = (char *) "/usr/bin/epic";
-            myargv[1] = (char *) "irc.freenode.net";
+            //myargv[0] = (char *) "/usr/bin/epic";
+            //myargv[1] = (char *) "irc.freenode.net";
+            myargv[0] = (char *) "/usr/bin/frotz"; 
+            myargv[1] = (char *) "/usr/local/bbsd/data/zork1.z3"; 
             myargv[2] = NULL;
             sp = RunSubprocess(myargv);
 
