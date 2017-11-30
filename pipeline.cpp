@@ -79,7 +79,6 @@ int Pipeline::pRead()
 //    cout << "Pipeline::pRead(" << rsock << ")" << endl;
     if (rsize) {
         cout << "+++ Read buffer already contains data .. not clobbering! " << rsize << endl;
-        exit(1);
         errno = EAGAIN;
         return -1;
     }
@@ -180,7 +179,7 @@ int Pipeline::pWrite()
             }
 
             if (errno == EAGAIN) {
-                return 0;
+                return -1;
                 }
                 exit(1);
         }
