@@ -178,7 +178,11 @@ int Pipeline::pWrite()
                 SetState(STATE_DISCONNECTED);
                 return 0;
             }
-            exit(1);
+
+            if (errno == EAGAIN) {
+                return 0;
+                }
+                exit(1);
         }
 
         if (w == 0) {

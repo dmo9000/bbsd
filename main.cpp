@@ -385,6 +385,7 @@ int RunIOSelectSet()
                                 w = PerformWriteIO(d);
                                 if (w != wr && errno != EAGAIN) {
                                         cout << "+++ Write pipe couldn't be drained!\n";
+                                        perror("error: ");
                                         exit(1);
                                     }
                             }
