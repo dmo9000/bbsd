@@ -345,7 +345,7 @@ int RunIOSelectSet()
                     shell->SetState(STATE_CONNECTED);
 
                 } else {
-                    cout << "[" << r << "] input received" << endl;
+                    //cout << "[" << r << "] input received" << endl;
                     PerformReadIO(*iter);
                     if ((*iter)->GetState() == STATE_DISCONNECTED && (*iter)->IsReadyForDeletion()) {
                         cout << "Pipeline is unconnected, and marked for deletion, closing" << endl;
@@ -372,7 +372,7 @@ int RunIOSelectSet()
                         int r = s->GetRbufsize();
                         int w = 0;
                         if (r) {
-                            cout << "Pipeline write! " << r << " bytes" << endl;
+                            //cout << "Pipeline write! " << r << " bytes" << endl;
                             if (d->GetWbufsize() == 0) {
                                 memcpy(d->GetWriteBuffer(), s->GetReadBuffer(),  r);
                                 d->SetWbufsize(d->GetWbufsize() + r);
@@ -380,7 +380,18 @@ int RunIOSelectSet()
                                 cout << "Transferred " << w << " bytes" << endl;
                                 s->SetRbufsize(0);
                             } else {
-                                cout << "+++ Pipeline was full, couldn't transfer, write deferred\n";
+                                //cout << "+++ Pipeline was full, couldn't transfer, write deferred\n";
+                                //printf("d->GetWbufsize() = %u, read pipe deferred until write pipe drained\n", d->GetWbufsize());
+                                /* NOTE: we are calling the Pipeline pWrite() here, not an NVT, as NVT would insert additional telnet formatting until explosion */
+                                /*       the data has already been formatted if it's in the pipeline, so we just need to send it */
+                                w = d->pWrite();
+                                if (w <= 0) {
+                                    if (errno != EAGAIN) {
+                                        cout << "+++ Error on write pipeline flush! w = " << w << endl;
+                                        cout << "Error: " << errno << endl;
+                                        exit(1);
+                                        }
+                                    }
                             }
                         }
                     }
@@ -483,6 +494,9 @@ int main(int argc, char *argv[])
 
 
     while (!terminated) {
+
+        /* unsure whether to do a seperate pass for an output set - for now I'll have the pipeline push the write if the write buffer is full*/
+
         if (!BuildIOSelectSet()) {
             cout << "+++ Error building IO select set" << endl;
             exit(1);
@@ -491,6 +505,7 @@ int main(int argc, char *argv[])
             cout << "RunIOSelectSet() failed" << endl;
             exit(1);
         }
+        
     }
 
     cout << "Shutting down sockets ..." << endl;

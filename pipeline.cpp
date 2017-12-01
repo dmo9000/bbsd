@@ -78,7 +78,7 @@ int Pipeline::pRead()
     int r = 0;
 //    cout << "Pipeline::pRead(" << rsock << ")" << endl;
     if (rsize) {
-        cout << "+++ Read buffer already contains data .. not clobbering! " << rsize << endl;
+        //cout << "+++ Read buffer already contains data .. not clobbering! " << rsize << endl;
         errno = EAGAIN;
         return -1;
     }
@@ -152,6 +152,8 @@ void Pipeline::Debug_Write()
 
 int Pipeline::pWrite()
 {
+    static uint8_t trimbuffer[BUFSIZE];
+    int i = 0;
     int w = 0;
     if (debugging) {
         cout << "Pipeline::pWrite(" << wsock << ":" << wsize << ")" << endl;
@@ -167,12 +169,12 @@ int Pipeline::pWrite()
     if (debugging) {
         cout << "wrote " << w << " bytes" << endl;
     }
+
     if (w != wsize) {
-        cout << "Short write! [" << w << "]" << endl;
+        //cout << "Short write! [" << w << " of " << wsize << "]" << endl;
 
         if (w == -1) {
             /* error */
-            cout << "Error: " << errno << endl;
             if (errno == ECONNRESET || errno == 104) {
                 SetState(STATE_DISCONNECTED);
                 return 0;
@@ -180,8 +182,9 @@ int Pipeline::pWrite()
 
             if (errno == EAGAIN) {
                 return -1;
-                }
-                exit(1);
+            }
+            cout << "Error: " << errno << endl;
+            exit(1);
         }
 
         if (w == 0) {
@@ -191,7 +194,20 @@ int Pipeline::pWrite()
             next_pipeline->SetState(STATE_DISCONNECTED);
             return 0;
         }
-        //exit(1);
+
+
+    /* if we reach here, not all bytes could be written to the output, so we need to trim the head of the buffer 
+       by the number of bytes that were written */
+
+       cout << "+++ only wrote " << w << "/" << wsize << endl;
+       cout << "+++ remainder is "<< (wsize-w) << endl;
+       memset(&trimbuffer, 0, BUFSIZE);
+       for (i = 0; i < (wsize - w); i++) {
+        /* slow copy - memmove() causes a crash due to misalignment here? */
+        trimbuffer[i] = wbuf[w+i];
+        }
+       memset(&wbuf, 0, BUFSIZE);
+       memcpy(&wbuf, &trimbuffer, (wsize-w)); 
     }
     wsize -= w;
     return w;
