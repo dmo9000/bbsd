@@ -132,7 +132,7 @@ void Subprocess::Shutdown()
     int options = WNOHANG; 
     cout << "+++ Subprocess:Shutdown()" << endl;
     Pipeline::Shutdown();
-    cout << "+++ Reaping child pid " << child_pido << endl;
+    cout << "+++ Reaping child pid " << child_pid << endl;
     if (kill(child_pid, SIGKILL) == -1) {
         cout << "Error: " << errno << endl;
         };
