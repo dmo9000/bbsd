@@ -38,6 +38,7 @@ static void myerror(const char *msg);
 
 /* this can all go into a controller class when more mature */
 
+int PerformShutdown(Pipeline *p);
 Pipeline* telnet_acceptor = NULL;
 
 vector<Pipeline*> SelectablePipelines;
@@ -123,7 +124,8 @@ int BuildIOSelectSet()
 
         if ((*iter)->GetState() == STATE_DISCONNECTED && (*iter)->IsReadyForDeletion()) {
             cout << "BuildIOSelectSet(): found Pipeline for deletion" << endl;
-            (*iter)->Shutdown();
+            //(*iter)->Shutdown();
+            PerformShutdown(*iter); 
             /* remove from the vector of open pipelines */
             for ( iter2 = SelectablePipelines.begin(); iter2 != SelectablePipelines.end(); )
                 if(*iter2 == *iter) {
@@ -147,7 +149,8 @@ void ShutdownIO()
 {
     std::vector<Pipeline*>::iterator iter, end, iter2;
     for(iter = SelectablePipelines.begin(), end = SelectablePipelines.end() ; iter != end; iter++) {
-        (*iter)->Shutdown();
+        //(*iter)->Shutdown();
+        PerformShutdown(*iter); 
     }
 
 }
@@ -211,6 +214,7 @@ int PerformReadIO(Pipeline *p)
                 cout << "--> Marking connected peer for deletion" << endl;
                 nvt_ptr->GetNextPipeline()->SetReadyForDeletion();
                 nvt_ptr->GetNextPipeline()->SetState(STATE_DISCONNECTED);
+                PerformShutdown(nvt_ptr->GetNextPipeline());
             } else {
                 cout << "--> EOF on NVT, nothing attached" << endl;
             }
@@ -349,7 +353,8 @@ int RunIOSelectSet()
                     PerformReadIO(*iter);
                     if ((*iter)->GetState() == STATE_DISCONNECTED && (*iter)->IsReadyForDeletion()) {
                         cout << "Pipeline is unconnected, and marked for deletion, closing" << endl;
-                        (*iter)->Shutdown();
+                       // (*iter)->Shutdown();
+                        PerformShutdown(*iter);
                         /* remove from the vector of open pipelines */
                         for ( iter2 = SelectablePipelines.begin(); iter2 != SelectablePipelines.end(); )
                             if(*iter2 == *iter) {

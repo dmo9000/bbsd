@@ -130,11 +130,11 @@ void Subprocess::Shutdown()
     pid_t c = 0;
     int wstatus;
     int options = WNOHANG; 
-    cout << "Subprocess:Shutdown()" << endl;
+    cout << "+++ Subprocess:Shutdown()" << endl;
     Pipeline::Shutdown();
-    cout << "Reaping child pid " << child_pid;
+    cout << "+++ Reaping child pid " << child_pid;
     c =  waitpid(child_pid, &wstatus, options);  
-    cout << "Reap status: " << c << endl;
+    cout << "+++ Reap status: " << c << endl;
     return;
 }
 
