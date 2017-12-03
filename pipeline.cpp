@@ -208,8 +208,10 @@ int Pipeline::pWrite()
         }
        memset(&wbuf, 0, BUFSIZE);
        memcpy(&wbuf, &trimbuffer, (wsize-w)); 
+       wsize = wsize - w;
+       return w;
     }
-    wsize -= w;
+    wsize = 0; 
     return w;
 }
 
