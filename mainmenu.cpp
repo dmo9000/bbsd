@@ -16,6 +16,7 @@ using std::endl;
 using std::vector;
 
 #define CHAR_ESCAPE	0x1B
+void prompt_enter();
 
 char myhostname[256];
 
@@ -38,7 +39,7 @@ int RunSubprocess(char *argv[]);
 int main(int argc, char *argv[])
 {
     Subprocess *shell = NULL;
-    char buffer[80];
+    static char buffer[80];
     char *myargv[64];
     int r = 0, w = 0;
     pid_t child_process = 0;
@@ -90,6 +91,11 @@ int main(int argc, char *argv[])
     /* reset terminal pen & paper colors */
     printf ("%c[0m", CHAR_ESCAPE);
 
+    
+    cout << endl;
+
+    prompt_enter();
+
 
     while (!logoff_requested) {
         sleep(1);
@@ -121,11 +127,11 @@ int main(int argc, char *argv[])
         printf("Enter your choice: ");
         memset(&buffer, 0, 80);
 
-        fgc = fgets((char *) &buffer, 79, stdin);
-        while (!fgc) {
+  fgc = fgets((char *) &buffer, 79, stdin);
+    while (!fgc) {
         usleep(20000);
-            fgc = fgets((char *) &buffer, 79, stdin);
-        }
+        fgc = fgets((char *) &buffer, 79, stdin);
+    }
 
 
         printf("\n\n");
@@ -136,11 +142,11 @@ int main(int argc, char *argv[])
         choice = atoi(buffer);
 
         switch (choice) {
-    case 1:
+        case 1:
 
-        /* FIXME: VT100 specific clear screen */
+            /* FIXME: VT100 specific clear screen */
 
-        printf ("%c[H%c[2J", CHAR_ESCAPE, CHAR_ESCAPE);
+            printf ("%c[H%c[2J", CHAR_ESCAPE, CHAR_ESCAPE);
             printf ("%c[1;1H", CHAR_ESCAPE);
             /* reset terminal pen & paper colors */
             printf ("%c[0m", CHAR_ESCAPE);
@@ -152,7 +158,16 @@ int main(int argc, char *argv[])
             if (!RunSubprocess(myargv)) {
                 cout << endl << "Error: couldn't start process" << endl;
             };
-            cout << endl << endl << endl << endl;
+            cout << endl ;
+            prompt_enter();
+
+
+            printf ("%c[H%c[2J", CHAR_ESCAPE, CHAR_ESCAPE);
+            printf ("%c[1;1H", CHAR_ESCAPE);
+            /* reset terminal pen & paper colors */
+            printf ("%c[0m", CHAR_ESCAPE);
+            printf ("\n");
+
             break;
 
         case 2:
@@ -161,8 +176,8 @@ int main(int argc, char *argv[])
             chdir("/usr/local/bbsd/data");
             //myargv[0] = (char *) "/usr/bin/epic";
             //myargv[1] = (char *) "irc.freenode.net";
-            myargv[0] = (char *) "/usr/bin/frotz"; 
-            myargv[1] = (char *) "/usr/local/bbsd/data/zork1.z3"; 
+            myargv[0] = (char *) "/usr/bin/frotz";
+            myargv[1] = (char *) "/usr/local/bbsd/data/zork1.z3";
             myargv[2] = NULL;
             sp = RunSubprocess(myargv);
 
@@ -324,3 +339,18 @@ int RunSubprocess(char *myargv[])
 }
 
 
+void prompt_enter()
+{
+
+    static char buffer[80];
+    char *fgc = NULL;
+    printf ("Hit [ENTER] to continue\n");
+
+    fgc = fgets((char *) &buffer, 79, stdin);
+    while (!fgc || buffer[0] != '\r') {
+        usleep(20000);
+        fgc = fgets((char *) &buffer, 79, stdin);
+    }
+
+    return;
+}

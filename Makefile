@@ -19,13 +19,13 @@ clean:
 	rm -f pmain mainmenu *.o
 
 install:
-	sudo systemctl bbsd stop
-	mkdir -p /usr/local/bbsd/data
-	cp data/* /usr/local/bbsd/data
-	cp pmain /usr/local/bbsd
-	cp mainmenu /usr/local/bbsd
+	sudo systemctl stop bbsd 
+	sudo mkdir -p /usr/local/bbsd/data
+	sudo cp data/* /usr/local/bbsd/data
+	sudo cp pmain /usr/local/bbsd
+	sudo cp mainmenu /usr/local/bbsd
 	#cp systemd/bbsd.service /lib/systemd/system
-	cp systemd/bbsd.service \
+	sudo cp systemd/bbsd.service \
 		/etc/systemd/system/multi-user.target.wants/bbsd.service
 	sudo systemctl enable bbsd.service
 	sudo systemctl daemon-reload
