@@ -1,0 +1,7 @@
+iconv -f utf-8 -t 437 
+
+It seems CP437 is not very popular anymore :-( 
+
+grep -P '[^\x00-\x7f]' <filename> 
+
+Can be used to detect unicode characters.

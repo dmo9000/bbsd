@@ -79,8 +79,8 @@ int main(int argc, char *argv[])
     printf ("\n");
 
     myargv[0] = (char *) "/usr/bin/cat";
-    myargv[1] = (char *) "/usr/local/bbsd/data/k1shack.ans";
-    //myargv[1] = (char *) "/usr/local/bbsd/data/bmilogo.ans";
+    //myargv[1] = (char *) "/usr/local/bbsd/data/k1shack.ans";
+    myargv[1] = (char *) "/usr/local/bbsd/data/igclogo2.ans";
     myargv[2] = NULL;
     if (!RunSubprocess(myargv)) {
         cout << endl << "Error: couldn't start process" << endl;
@@ -347,7 +347,7 @@ void prompt_enter()
     printf ("Hit [ENTER] to continue\n");
 
     fgc = fgets((char *) &buffer, 79, stdin);
-    while (!fgc || buffer[0] != '\r') {
+    while (!fgc || (buffer[0] != '\r' && buffer[0] != '\n')) {
         usleep(20000);
         fgc = fgets((char *) &buffer, 79, stdin);
     }
