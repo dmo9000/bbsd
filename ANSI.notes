@@ -1,7 +1,32 @@
-iconv -f utf-8 -t 437 
+iconv -f utf-8 -t 437  - but you will probably lose a lot of data. 
 
 It seems CP437 is not very popular anymore :-( 
 
-grep -P '[^\x00-\x7f]' <filename> 
+    grep -P '[^\x00-\x7f]' <filename> 
 
 Can be used to detect unicode characters.
+
+http://bluesock.org/~willg/dev/ansi.html
+
+Seeing Code Page 437 in Vim
+---------------------------
+`:e ++enc=cp437`
+
+Terminal tricks & tools
+-----------------------
+http://mewbies.com/acute_terminal_fun_table_of_contents.htm
+
+Complete mapping from CP437 to Unicode (and vice-versa) on Wikipedia: 
+
+    https://en.wikipedia.org/wiki/Code_page_437#Characters
+
+
+More detailed info on the CP437 side:
+
+    https://www.ascii-codes.com/
+
+This site has the UNICODE side of things, you can search your E2....
+sequences against this. 
+
+    http://www.fileformat.info/info/unicode/char/search.htm
+
