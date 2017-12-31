@@ -11,6 +11,8 @@
 	Greek upper case letter gamma 
  **/
 
+#define BUFSIZE 8192
+
 int main()
 {
     bool unicode_on = false;
@@ -18,10 +20,10 @@ int main()
     int rd = 0;
     int i = 0;
     uint16_t ubyte = 0;
-    unsigned char buffer[4096];
+    unsigned char buffer[BUFSIZE];
 
     while (!rd) {
-        rd = read(0, &buffer, 4096);
+        rd = read(0, &buffer, BUFSIZE);
         fprintf(stderr, "rd = %d\n", rd);
         for (i = 0; i < rd ; i++) {
             if (unicode_on) {
@@ -71,8 +73,56 @@ int main()
                                 /* 'BOX DRAWINGS DOUBLE UP AND RIGHT' (U+255A) */
                                 putchar(0xC8);
                                 break; 
+                            case 0x948c:
+                                /* 'BOX DRAWINGS LIGHT DOWN AND RIGHT' (U+250C)*/
+                                putchar(0xDA);
+                                break; 
+                            case 0x9480:
+                                /* 'BOX DRAWINGS LIGHT HORIZONTAL' (U+2500) */
+                                putchar(0xC4);
+                                break; 
+                            case 0x9490:
+                                /* 'BOX DRAWINGS LIGHT DOWN AND LEFT' (U+2510) */
+                                putchar(0xBF);
+                                break; 
+                            case 0x9482:
+                                /* 'BOX DRAWINGS LIGHT VERTICAL' (U+2502) */
+                                putchar(0xB3);
+                                break; 
+                            case 0x9692:
+                                /* 'MEDIUM SHADE' (U+2592) */
+                                putchar(0xB1);
+                                break; 
+                            case 0x9691:
+                                /* 'LIGHT SHADE' (U+2591) */
+                                putchar(0xB0);
+                                break; 
+                            case 0x9693:
+                                /* 'DARK SHADE' (U+2593) */
+                                putchar(0xB2);
+                                break; 
+                            case 0x9494:
+                                /* 'BOX DRAWINGS LIGHT UP AND RIGHT' (U+2514)*/
+                                putchar(0xC0);
+                                break; 
+                            case 0x9498:
+                                /* 'BOX DRAWINGS LIGHT UP AND LEFT' (U+2518)*/
+                                putchar(0xD9);
+                                break; 
+                            case 0x949c:
+                                /* 'BOX DRAWINGS LIGHT VERTICAL AND RIGHT' (U+251C) */
+                                putchar(0xC3);
+                                break; 
+                            case 0x94ac:
+                                /* 'BOX DRAWINGS LIGHT DOWN AND HORIZONTAL' (U+252C) */
+                                putchar(0xC2);
+                                break; 
+                            case 0x94a4:
+                                /* 'BOX DRAWINGS LIGHT VERTICAL AND LEFT' (U+2524) */
+                                putchar(0xB4);
+                                break; 
                             default:
-                                fprintf(stderr, "UNHANDLED UBYTE VALUE = e2%04x\n", ubyte);
+                                fprintf(stderr, "UNHANDLED UBYTE VALUE = e2%04x [U+%04X]\n", ubyte, ubyte - 0x7040 - 0x40);
                                 exit(1);
                                 break;
                             }
@@ -98,7 +148,7 @@ int main()
                                 i, buffer[i]);
                         exit(1);
                     }
-                    fprintf(stderr, "[0x%02x]", buffer[i]);
+                    //fprintf(stderr, "[0x%02x]", buffer[i]);
                     putchar(buffer[i]);
                     break;
                 }
