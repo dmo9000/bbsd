@@ -15,7 +15,7 @@ export GOPATH=/home/dan/git-remote
 oozz gunk > gunk1.ans
 ./cp437 < gunk1.ans 2>/dev/null > gunk2.ans
 go run /home/dan/git-remote/src/ansiart2utf8/ansiart2utf8.go -w 78 < gunk2.ans > gunk3.ans
-./cp437 < gunk3.ans 2>/dev/null > gunk4.ans
+./cp437 < gunk3.ans 2>/dev/null | head -n 22 > gunk4.ans
 # trim the last line since it is incomplete
-sed -i '$ d' gunk4.ans
+#sed -i '$ d' gunk4.ans
 rm -f gunk[123].ans
