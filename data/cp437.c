@@ -11,7 +11,7 @@
 	Greek upper case letter gamma 
  **/
 
-#define BUFSIZE 8192
+#define BUFSIZE 32767 
 
 int main()
 {

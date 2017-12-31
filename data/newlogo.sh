@@ -19,3 +19,8 @@ go run /home/dan/git-remote/src/ansiart2utf8/ansiart2utf8.go -w 78 < gunk2.ans >
 # trim the last line since it is incomplete
 #sed -i '$ d' gunk4.ans
 rm -f gunk[123].ans
+
+go run /home/dan/git-remote/src/ansiart2utf8/ansiart2utf8.go -w 80 < bmilogo.ans > bmilogo2.ans
+./cp437 < bmilogo2.ans 2>/dev/null > bmilogo3.ans
+rm -f bmilogo[2].ans
+

@@ -82,6 +82,7 @@ int main(int argc, char *argv[])
     //myargv[1] = (char *) "/usr/local/bbsd/data/k1shack.ans";
     //myargv[1] = (char *) "/usr/local/bbsd/data/igclogo6.ans";
     myargv[1] = (char *) "/usr/local/bbsd/data/gunk4.ans";
+    //myargv[1] = (char *) "/usr/local/bbsd/data/bmilogo3.ans";
     myargv[2] = NULL;
     if (!RunSubprocess(myargv)) {
         cout << endl << "Error: couldn't start process" << endl;
