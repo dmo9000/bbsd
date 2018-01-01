@@ -71,7 +71,7 @@ int main(int argc, char *argv[])
 
     if (env_v  != NULL) {
         strncpy((char *) &terminal_type,  env_v, strlen(env_v));
-        printf("[Auto-detected terminal type]\n");
+        //printf("[Auto-detected terminal type]\n");
     }
 
     /* set stdin to be non blocking */
@@ -97,15 +97,10 @@ int main(int argc, char *argv[])
         exit(1);
     };
 
-
     /* reset terminal pen & paper colors */
     printf ("%c[0m", CHAR_ESCAPE);
 
-
-    printf("You are connected on node [%s] via router [%s]\n", myhostname, router_hostname);
-
-    cout << endl;
-
+    printf("\nYou are connected on node [%s] via router [%s]\n", myhostname, router_hostname);
     prompt_enter();
 
 
