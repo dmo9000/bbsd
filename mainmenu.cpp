@@ -10,6 +10,9 @@
 #include <sys/ioctl.h>
 #include "subprocess.h"
 #include "build-id.h"
+#include <sys/socket.h>
+#include <netinet/in.h>
+#include <arpa/inet.h>
 
 using std::cout;
 using std::endl;
@@ -38,6 +41,9 @@ int RunSubprocess(char *argv[]);
 
 int main(int argc, char *argv[])
 {
+    int s;
+    struct sockaddr_in peer;
+    int peer_len;
     Subprocess *shell = NULL;
     static char buffer[80];
     char *myargv[64];
@@ -93,8 +99,21 @@ int main(int argc, char *argv[])
     /* reset terminal pen & paper colors */
     printf ("%c[0m", CHAR_ESCAPE);
 
-    
+
     cout << endl;
+
+
+    peer_len = sizeof(peer);
+    /* Ask getpeername to fill in peer's socket address.  */
+    if (getpeername(s, (struct sockaddr *) &peer, (socklen_t*) &peer_len) == -1) {
+        perror("getpeername() failed");
+    }
+
+    /* Print it. The IP address is often zero because     */
+    /* sockets are seldom bound to a specific local       */
+    /* interface.                                         */
+    printf("Peer's IP address is: %s\n", inet_ntoa(peer.sin_addr));
+    printf("Peer's port is: %d\n", (int) ntohs(peer.sin_port));
 
     prompt_enter();
 
@@ -129,11 +148,11 @@ int main(int argc, char *argv[])
         printf("Enter your choice: ");
         memset(&buffer, 0, 80);
 
-  fgc = fgets((char *) &buffer, 79, stdin);
-    while (!fgc) {
-        usleep(20000);
         fgc = fgets((char *) &buffer, 79, stdin);
-    }
+        while (!fgc) {
+            usleep(20000);
+            fgc = fgets((char *) &buffer, 79, stdin);
+        }
 
 
         printf("\n\n");
