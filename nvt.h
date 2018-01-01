@@ -1,5 +1,8 @@
 #pragma once
 #include <string.h>
+#include <sys/socket.h>
+#include <netinet/in.h>
+#include <arpa/inet.h>
 #include "pipeline.h"
 
 #define IAC_SE               0xF0
@@ -43,6 +46,10 @@ private:
     bool option_neg_pass_1 = false;
 
 public:
+
+    struct sockaddr_in peer;
+    int peer_len;
+
     NVT();
     ~NVT();
     int RegisterSocket(int r, int w);

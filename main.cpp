@@ -316,8 +316,18 @@ int RunIOSelectSet()
                 if (r == sockfd) {
                     cout << "[" << r << "] connection received" << endl;
                     newsockfd = accept(r, (struct sockaddr *) &cli_addr, (socklen_t *) &clilen);
+
+
                     /* FIXME: fill in client information address somewhere I suppose */
                     new_nvt = new NVT();
+
+                     if (getpeername(s, (struct sockaddr *) &new_nvt->peer, (socklen_t*) &new_nvt->peer_len) == -1) {
+                            cout << "getpeername() failed" << endl;
+                        } else {
+                            cout << "getpeername() OK!\n";
+                            printf("Peer's IP address is: %s\n", inet_ntoa(new_nvt->peer.sin_addr));
+                            printf("Peer's port is: %d\n", (int) ntohs(new_nvt->peer.sin_port));
+                        }
                     // telnet connection is bi-direction TCP communication via a single socket
                     new_nvt->RegisterSocket(newsockfd, newsockfd);
                     if (!RegisterForIO((Pipeline*)(new_nvt))) {
