@@ -283,7 +283,8 @@ int PerformWriteIO(Pipeline *p)
 int RunIOSelectSet()
 {
     std::vector<Pipeline*>::iterator iter, end, iter2;
-    struct sockaddr_in serv_addr, cli_addr;
+//    struct sockaddr_in serv_addr, cli_addr;
+    struct sockaddr_storage serv_addr, cli_addr;
     socklen_t clilen = 0;
     int newsockfd = -1;
     NVT *new_nvt = NULL;
@@ -291,6 +292,8 @@ int RunIOSelectSet()
     Subprocess *shell = NULL;
     pid_t child_process = 0;
     int r, w;
+//    char ipstr[INET6_ADDRSTRLEN];
+//    int port;
 
     int s = 0;
 //    cout << "RunIOSelectSet()" << endl;
@@ -315,19 +318,23 @@ int RunIOSelectSet()
             if (FD_ISSET(r, &socketset)) {
                 if (r == sockfd) {
                     cout << "[" << r << "] connection received" << endl;
+                    clilen = sizeof cli_addr;
                     newsockfd = accept(r, (struct sockaddr *) &cli_addr, (socklen_t *) &clilen);
-
 
                     /* FIXME: fill in client information address somewhere I suppose */
                     new_nvt = new NVT();
-
-                     if (getpeername(s, (struct sockaddr *) &new_nvt->peer, (socklen_t*) &new_nvt->peer_len) == -1) {
-                            cout << "getpeername() failed" << endl;
-                        } else {
-                            cout << "getpeername() OK!\n";
-                            printf("Peer's IP address is: %s\n", inet_ntoa(new_nvt->peer.sin_addr));
-                            printf("Peer's port is: %d\n", (int) ntohs(new_nvt->peer.sin_port));
+                    if (cli_addr.ss_family == AF_INET) {
+                        struct sockaddr_in *s = (struct sockaddr_in *)&cli_addr;
+                        new_nvt->port = ntohs(s->sin_port);
+                        inet_ntop(AF_INET, &s->sin_addr, new_nvt->ipstr, sizeof(new_nvt->ipstr));
+                        } else { // AF_INET6
+                        printf("IPV6\n");
+                        exit(1);
+                        struct sockaddr_in6 *s = (struct sockaddr_in6 *)&cli_addr;
+                        new_nvt->port = ntohs(s->sin6_port);
+                        inet_ntop(AF_INET6, &s->sin6_addr, new_nvt->ipstr, sizeof(new_nvt->ipstr)); 
                         }
+                    //printf("+++ CLIENT IP address: %s:%u\n", new_nvt->ipstr, new_nvt->port);
                     // telnet connection is bi-direction TCP communication via a single socket
                     new_nvt->RegisterSocket(newsockfd, newsockfd);
                     if (!RegisterForIO((Pipeline*)(new_nvt))) {
@@ -344,6 +351,11 @@ int RunIOSelectSet()
                     myargv[0] = (char *) "./mainmenu";
                     myargv[1] = NULL;
                     shell = new Subprocess();
+
+                    /* start the child process */
+                    strncpy((char *) &shell->ipstr, (char *) &new_nvt->ipstr, INET6_ADDRSTRLEN);
+                    shell->port  = new_nvt->port;
+                    
                     child_process = shell->StartProcess(myargv[0], myargv);
                     cout << "child process pid is " << child_process << endl;
                     r = shell->GetPipeFD(PARENT_READ_PIPE, READ_FD);

@@ -56,6 +56,7 @@ int main(int argc, char *argv[])
     char *fgc = NULL;
     int sp = 0;
     char *env_v = NULL;
+    char *router_hostname = NULL;
 
     /* FIXME: we should refuse to run unless we are running as user nobody */
 
@@ -66,6 +67,7 @@ int main(int argc, char *argv[])
     setenv("TERM", "ansi", 0);
     setenv("HOME", "/home/bootstrap", 1);
     env_v = secure_getenv("TERM");
+    router_hostname = secure_getenv("TRANSPORT_PATH");
 
     if (env_v  != NULL) {
         strncpy((char *) &terminal_type,  env_v, strlen(env_v));
@@ -100,20 +102,9 @@ int main(int argc, char *argv[])
     printf ("%c[0m", CHAR_ESCAPE);
 
 
+    printf("You are connected on node [%s] via router [%s]\n", myhostname, router_hostname);
+
     cout << endl;
-
-
-    peer_len = sizeof(peer);
-    /* Ask getpeername to fill in peer's socket address.  */
-    if (getpeername(s, (struct sockaddr *) &peer, (socklen_t*) &peer_len) == -1) {
-        perror("getpeername() failed");
-    }
-
-    /* Print it. The IP address is often zero because     */
-    /* sockets are seldom bound to a specific local       */
-    /* interface.                                         */
-    printf("Peer's IP address is: %s\n", inet_ntoa(peer.sin_addr));
-    printf("Peer's port is: %d\n", (int) ntohs(peer.sin_port));
 
     prompt_enter();
 

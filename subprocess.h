@@ -4,6 +4,7 @@
 #include <sys/types.h>
 #include <sys/wait.h>
 #include "pipeline.h"
+#include "nvt.h"
 
 #define NUM_PIPES          2
 
@@ -31,6 +32,8 @@ private:
     pid_t child_pid = -1;
 
 public:
+    char ipstr[INET6_ADDRSTRLEN];
+    int port;
     Subprocess();
     ~Subprocess();
     pid_t StartProcess(const char *path, char **argv);

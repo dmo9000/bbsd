@@ -47,8 +47,8 @@ private:
 
 public:
 
-    struct sockaddr_in peer;
-    int peer_len;
+    char ipstr[INET6_ADDRSTRLEN];
+    int port;
 
     NVT();
     ~NVT();

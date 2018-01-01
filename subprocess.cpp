@@ -1,3 +1,4 @@
+#include <string.h>
 #include <iostream>
 #include <fcntl.h>
 #include <sys/wait.h>
@@ -66,18 +67,27 @@ pid_t Subprocess::StartProcess(const char *path, char **argv)
     int flags = 0;
     int p = 0;
     int i = 0, j = 0;
+    char transport_path[2048];
 
-//    cout << "StartProcess(" << path << ")" << endl;
+    memset(&transport_path, 0, 2048);
+
+    cout << "StartProcess(" << path << ")" << endl;
     p = pipe(pipes[PARENT_READ_PIPE]);
 //    printf("Create parent read pipe = %d\n", p);
     p = pipe(pipes[PARENT_WRITE_PIPE]);
 //    printf("Create parent write pipe = %d\n", p);
 //
+  //  snprintf((char *) &transport_path, 2047, "tcp@%s:%u", ipstr, port);
+   // setenv("TRANSPORT_PATH", (char *) &transport_path, 1);
+    //printf("Exported TRANSPORT_PATH=%s\n", transport_path);
 
     child_pid = fork();
     if(!child_pid) {
-        /* we are within the child process here */
 
+        snprintf((char *) &transport_path, 2047, "tcp@%s:%u", ipstr, port);
+        setenv("TRANSPORT_PATH", (char *) &transport_path, 1);
+        
+        /* we are within the child process here */
         p = dup2(CHILD_READ_FD, STDIN_FILENO);      
         //cout << "child: read_fd = "  << p << endl;
         p = dup2(CHILD_WRITE_FD, STDOUT_FILENO);
@@ -89,7 +99,7 @@ pid_t Subprocess::StartProcess(const char *path, char **argv)
         close(PARENT_READ_FD);
         close(PARENT_WRITE_FD);
 
-				/* close stderr  - we may want to do something else with this later */
+		/* close stderr  - we may want to do something else with this later */
         close(2);
 
         /* wait until connect_time >= 5 */
@@ -103,6 +113,8 @@ pid_t Subprocess::StartProcess(const char *path, char **argv)
             SetReadyForDeletion();
             exit(255);
             };
+
+
         /* never return */
     } else {
         /* we are in the parent here */
