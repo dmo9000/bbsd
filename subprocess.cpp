@@ -71,7 +71,7 @@ pid_t Subprocess::StartProcess(const char *path, char **argv)
 
     memset(&transport_path, 0, 2048);
 
-    cout << "StartProcess(" << path << ")" << endl;
+//    cout << "StartProcess(" << path << ")" << endl;
     p = pipe(pipes[PARENT_READ_PIPE]);
 //    printf("Create parent read pipe = %d\n", p);
     p = pipe(pipes[PARENT_WRITE_PIPE]);
