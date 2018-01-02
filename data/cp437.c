@@ -121,6 +121,14 @@ int main()
                                 /* 'BOX DRAWINGS LIGHT VERTICAL AND LEFT' (U+2524) */
                                 putchar(0xB4);
                                 break; 
+                            case 0x9680:
+                                /* 'UPPER HALF BLOCK' (U+2580) */
+                                putchar(0xDF);
+                                break;
+                            case 0x9684:
+                                /* 'LOWER HALF BLOCK' (U+2584) */
+                                putchar(0xDC);
+                                break;
                             default:
                                 fprintf(stderr, "UNHANDLED UBYTE VALUE = e2%04x [U+%04X]\n", ubyte, ubyte - 0x7040 - 0x40);
                                 exit(1);
