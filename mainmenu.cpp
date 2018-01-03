@@ -93,7 +93,7 @@ int main(int argc, char *argv[])
     //myargv[1] = (char *) "/usr/local/bbsd/data/bmilogo3.ans";
     //myargv[1] = (char *) "/usr/local/bbsd/data/badsoft.ans";
     myargv[0] = "/usr/local/bbsd/tdftool";
-    myargv[1] = "/usr/local/bbsd/fonts/PUNISHTX.TDF"; 
+    myargv[1] = "/usr/local/bbsd/fonts/HEMISPHX.TDF"; 
     myargv[2] = "BADSOFT";
     myargv[3] = NULL;
     if (!RunSubprocess(myargv)) {
@@ -104,9 +104,9 @@ int main(int argc, char *argv[])
     /* reset terminal pen & paper colors */
     printf ("%c[0m", CHAR_ESCAPE);
 
-    printf("\nYou are connected on node [%s] via router [%s]\n", myhostname, router_hostname);
+    printf("\nYou are connected on node [%s] via gateway [%s]\n", 
+            myhostname, router_hostname);
     prompt_enter();
-
 
     while (!logoff_requested) {
         sleep(1);
