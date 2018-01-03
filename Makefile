@@ -1,7 +1,7 @@
 OBJS =pipeline.o subprocess.o nvt.o
 FLAGS = -std=c++11 -D__LINUX__ -fpermissive -g -ggdb
 
-all: buildtag mainmenu pmain
+all: buildtag mainmenu pmain tdftool
 
 buildtag:
 	./build-id.sh && make clean
@@ -15,6 +15,8 @@ pmain: main.o $(OBJS)
 %.o: %.cpp
 	g++ -c $(CXX_FLAGS) $(FLAGS) -o $@ $<
 
+tdftool: tdftool.o
+
 clean:
 	rm -f pmain mainmenu *.o
 
@@ -24,6 +26,7 @@ install:
 	sudo cp data/* /usr/local/bbsd/data
 	sudo cp pmain /usr/local/bbsd
 	sudo cp mainmenu /usr/local/bbsd
+	sudo cp tdftool /usr/local/bbsd
 	#cp systemd/bbsd.service /lib/systemd/system
 	sudo cp systemd/bbsd.service \
 		/etc/systemd/system/multi-user.target.wants/bbsd.service
