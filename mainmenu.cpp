@@ -93,7 +93,7 @@ int main(int argc, char *argv[])
     //myargv[1] = (char *) "/usr/local/bbsd/data/bmilogo3.ans";
     //myargv[1] = (char *) "/usr/local/bbsd/data/badsoft.ans";
     myargv[0] = "/usr/local/bbsd/tdftool";
-    myargv[1] = "/usr/local/bbsd/fonts/PUNISHX.TDF"; 
+    myargv[1] = "/usr/local/bbsd/fonts/PUNISHTX.TDF"; 
     myargv[2] = "BADSOFT";
     myargv[3] = NULL;
     if (!RunSubprocess(myargv)) {
