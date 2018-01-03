@@ -86,13 +86,16 @@ int main(int argc, char *argv[])
     printf ("%c[1;1H", CHAR_ESCAPE);
     printf ("\n");
 
-    myargv[0] = (char *) "/usr/bin/cat";
+    //myargv[0] = (char *) "/usr/bin/cat";
     //myargv[1] = (char *) "/usr/local/bbsd/data/k1shack.ans";
     //myargv[1] = (char *) "/usr/local/bbsd/data/igclogo6.ans";
     //myargv[1] = (char *) "/usr/local/bbsd/data/gunk4.ans";
     //myargv[1] = (char *) "/usr/local/bbsd/data/bmilogo3.ans";
-    myargv[1] = (char *) "/usr/local/bbsd/data/badsoft.ans";
-    myargv[2] = NULL;
+    //myargv[1] = (char *) "/usr/local/bbsd/data/badsoft.ans";
+    myargv[0] = "/usr/local/bbsd/tdftool";
+    myargv[1] = "/usr/local/bbsd/fonts/REALITYX.TDF"; 
+    myargv[2] = "BADSOFT";
+    myargv[3] = NULL;
     if (!RunSubprocess(myargv)) {
         cout << endl << "Error: couldn't start process" << endl;
         exit(1);
