@@ -132,7 +132,8 @@ int main(int argc, char *argv[])
         printf("\t3)    Download OEMPKG.ARC   (ZMODEM)\n");
         printf("\t4)    Download OEMFONTS.ARC (ZMODEM)\n");
         printf("\t5)    Download OEMIMAGE.ARC (ZMODEM)\n");
-        printf("\t6)    Disconnect\n");
+        printf("\t6)    Show Monit summary\n");
+        printf("\tQ)    Disconnect\n");
 
         printf("\n");
         printf("Enter your choice: ");
@@ -150,7 +151,11 @@ int main(int argc, char *argv[])
         printf("\n");
 
         buffer[1] = '\0';
-        choice = atoi(buffer);
+        if (buffer[0] == 'Q' || buffer[0] == 'q') {
+            choice = 0xDEADBEEF;
+            } else {
+            choice = atoi(buffer);
+            }
 
         switch (choice) {
         case 1:
@@ -256,15 +261,26 @@ int main(int argc, char *argv[])
             cout << endl << endl ;
             printf("Subprocess returned %d\n", sp);
             break;
-
         case 6:
+            cout << endl << endl ;
+            chdir("/usr/local/bbsd/data");
+            myargv[0] = (char *) "/usr/bin/cat";
+            myargv[1] = (char *) "/usr/local/bbsd/data/monit.summary";
+            myargv[2] = NULL;
+            sp = RunSubprocess(myargv);
+            if (!sp) {
+                cout << endl << "Error: couldn't start process" << endl;
+            };
+            cout << endl << endl ;
+            printf("Subprocess returned %d\n", sp);
+            break;
+        case 0xDEADBEEF:
             cout << "Thanks for visiting BMI Technology." << endl << endl;
             logoff_requested = true;
             exit(0);
             break;
-
         default:
-            cout << endl << endl << "That menu choice is invalid." << endl;
+           // cout << endl << endl << "That menu choice is invalid." << endl;
             break;
 
         }
