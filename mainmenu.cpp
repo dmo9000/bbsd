@@ -146,10 +146,6 @@ int main(int argc, char *argv[])
         }
 
 
-        printf("\n\n");
-        printf("Your choice was: %s\n", buffer);
-        printf("\n");
-
         buffer[1] = '\0';
         if (buffer[0] == 'Q' || buffer[0] == 'q') {
             choice = 0xDEADBEEF;
@@ -271,6 +267,7 @@ int main(int argc, char *argv[])
             if (!sp) {
                 cout << endl << "Error: couldn't start process" << endl;
             };
+            cout << endl << endl;
             prompt_enter();
 
             cout << endl << endl ;
