@@ -271,8 +271,10 @@ int main(int argc, char *argv[])
             if (!sp) {
                 cout << endl << "Error: couldn't start process" << endl;
             };
+            prompt_enter();
+
             cout << endl << endl ;
-            printf("Subprocess returned %d\n", sp);
+            //printf("Subprocess returned %d\n", sp);
             break;
         case 0xDEADBEEF:
             cout << "Thanks for visiting BMI Technology." << endl << endl;
