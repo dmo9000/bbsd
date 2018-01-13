@@ -31,8 +31,9 @@ install:
 	sudo cp pmain /usr/local/bbsd
 	sudo cp mainmenu /usr/local/bbsd
 	sudo chown -R nobody:nobody /usr/local/bbsd
-	sudo cp systemd/bbsd.service \
+#	sudo cp systemd/bbsd.service \
 		/etc/systemd/system/multi-user.target.wants/bbsd.service
+	sudo rm -f /etc/systemd/system/multi-user.target.wants/bbsd.service
 	sudo systemctl enable bbsd.service
 	sudo systemctl daemon-reload
 	sudo service bbsd start
