@@ -4,7 +4,7 @@ CC = gcc
 OBJS =pipeline.o subprocess.o nvt.o
 FLAGS = -std=c++11 -D__LINUX__ -fpermissive -g -ggdb
 
-all: buildtag mainmenu pmain tdftool
+all: buildtag mainmenu pmain 
 
 buildtag:
 	./build-id.sh && make clean
@@ -18,10 +18,9 @@ pmain: main.o $(OBJS)
 %.o: %.cpp
 	g++ -c $(CXX_FLAGS) $(FLAGS) -o $@ $<
 
-tdftool: tdftool.o
 
 clean:
-	rm -f pmain mainmenu tdftool *.o
+	rm -f pmain mainmenu
 
 install:
 	sudo systemctl stop bbsd 
@@ -31,7 +30,6 @@ install:
 	sudo cp fonts/* /usr/local/bbsd/fonts
 	sudo cp pmain /usr/local/bbsd
 	sudo cp mainmenu /usr/local/bbsd
-	sudo cp tdftool /usr/local/bbsd
 	sudo chown -R nobody:nobody /usr/local/bbsd
 	sudo cp systemd/bbsd.service \
 		/etc/systemd/system/multi-user.target.wants/bbsd.service
