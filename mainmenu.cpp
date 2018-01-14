@@ -113,9 +113,9 @@ int main(int argc, char *argv[])
 
     cout << endl << endl << endl << endl << endl << endl;
 
-    myargv[0] = "/usr/bin/tdftool";
-    myargv[1] = "/usr/local/bbsd/fonts/HGSIERAX.TDF";
-    myargv[2] = "      intergalatic software corp";
+    myargv[0] = (char *) "/usr/bin/tdftool";
+    myargv[1] = (char *) "/usr/local/bbsd/fonts/HGSIERAX.TDF";
+    myargv[2] = (char *) "      intergalatic software corp";
     myargv[3] = NULL;
     if (!RunSubprocess(myargv)) {
         cout << endl << "Error: couldn't start process" << endl;
@@ -131,9 +131,11 @@ int main(int argc, char *argv[])
     size.ws_ypixel = 0;
     ioctl(STDOUT_FILENO,TIOCSWINSZ,&size);
     ioctl(STDOUT_FILENO,TIOCGWINSZ,&size);
-    printf("Terminal type is %s:%dx%d\n\n", (const char *) terminal_type,
-           size.ws_col, size.ws_row, size.ws_xpixel, size.ws_ypixel);
 
+
+    snprintf((char *) &justify_buf, JUSTIFY_BUFSIZE, "Terminal type is %s:%dx%d\n\n", 
+            (const char *) terminal_type, size.ws_col, size.ws_row, size.ws_xpixel, size.ws_ypixel);
+    justify_text(size.ws_col, (char *) &justify_buf);
 
     snprintf((char *) &justify_buf, JUSTIFY_BUFSIZE, "You are connected on node [%s] via gateway [%s]\n", myhostname, router_hostname);
     justify_text(size.ws_col, (char *) &justify_buf);
@@ -143,7 +145,7 @@ int main(int argc, char *argv[])
     while (!logoff_requested) {
         sleep(1);
 
-        printf("\n");
+        printf("\n\n");
 
         printf("\t1)    Receive a fortune cookie\n");
         printf("\t2)    Play ZORK I\n");
@@ -292,7 +294,7 @@ int main(int argc, char *argv[])
             //printf("Subprocess returned %d\n", sp);
             break;
         case 0xDEADBEEF:
-            cout << "Thanks for visiting BMI Technology." << endl << endl;
+            cout << endl << endl << endl;
             logoff_requested = true;
             exit(0);
             break;
