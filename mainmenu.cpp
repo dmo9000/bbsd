@@ -7,6 +7,7 @@
 #include <unistd.h>
 #include <sys/types.h>
 #include <fcntl.h>
+#include <assert.h>
 #include <sys/ioctl.h>
 #include "subprocess.h"
 #include "build-id.h"
@@ -18,10 +19,14 @@ using std::cout;
 using std::endl;
 using std::vector;
 
+#define JUSTIFY_BUFSIZE 1024
 #define CHAR_ESCAPE	0x1B
+
 void prompt_enter();
 
 char myhostname[256];
+struct winsize size;
+
 
 /*
 
@@ -39,8 +44,28 @@ char terminal_type[80];
 
 int RunSubprocess(char *argv[]);
 
+
+int justify_text(int width, char *text)
+{
+    int l = 0;
+    int ii = 0;
+    assert(text);
+    assert(strlen(text));
+    assert(strlen(text) < width);
+
+    l = strlen(text);
+    l = (width - l) / 2;
+    for (ii = 0; ii < l ; ii++) {
+        putchar(' ');
+    }
+    printf("%s", text);
+    return 0;
+
+}
+
 int main(int argc, char *argv[])
 {
+    unsigned char justify_buf[JUSTIFY_BUFSIZE];
     int s;
     struct sockaddr_in peer;
     int peer_len;
@@ -86,15 +111,11 @@ int main(int argc, char *argv[])
     printf ("%c[1;1H", CHAR_ESCAPE);
     printf ("\n");
 
-    //myargv[0] = (char *) "/usr/bin/cat";
-    //myargv[1] = (char *) "/usr/local/bbsd/data/k1shack.ans";
-    //myargv[1] = (char *) "/usr/local/bbsd/data/igclogo6.ans";
-    //myargv[1] = (char *) "/usr/local/bbsd/data/gunk4.ans";
-    //myargv[1] = (char *) "/usr/local/bbsd/data/bmilogo3.ans";
-    //myargv[1] = (char *) "/usr/local/bbsd/data/badsoft.ans";
+    cout << endl << endl << endl << endl << endl << endl;
+
     myargv[0] = "/usr/bin/tdftool";
-    myargv[1] = "/usr/local/bbsd/fonts/HEMISPHX.TDF"; 
-    myargv[2] = "BADSOFT";
+    myargv[1] = "/usr/local/bbsd/fonts/HGSIERAX.TDF";
+    myargv[2] = "      intergalatic software corp";
     myargv[3] = NULL;
     if (!RunSubprocess(myargv)) {
         cout << endl << "Error: couldn't start process" << endl;
@@ -104,26 +125,23 @@ int main(int argc, char *argv[])
     /* reset terminal pen & paper colors */
     printf ("%c[0m", CHAR_ESCAPE);
 
-    printf("\nYou are connected on node [%s] via gateway [%s]\n", 
-            myhostname, router_hostname);
+    size.ws_col = 80;
+    size.ws_row = 24;
+    size.ws_xpixel = 0;
+    size.ws_ypixel = 0;
+    ioctl(STDOUT_FILENO,TIOCSWINSZ,&size);
+    ioctl(STDOUT_FILENO,TIOCGWINSZ,&size);
+    printf("Terminal type is %s:%dx%d\n\n", (const char *) terminal_type,
+           size.ws_col, size.ws_row, size.ws_xpixel, size.ws_ypixel);
+
+
+    snprintf((char *) &justify_buf, JUSTIFY_BUFSIZE, "You are connected on node [%s] via gateway [%s]\n", myhostname, router_hostname);
+    justify_text(size.ws_col, (char *) &justify_buf);
+
     prompt_enter();
 
     while (!logoff_requested) {
         sleep(1);
-        printf("\n\nBMI Technology Menu\n");
-        printf("Services build id #%s\n", BUILD_ID);
-        printf("You are connected on node [%s]\n", myhostname);
-        struct winsize size;
-
-        size.ws_col = 80;
-        size.ws_row = 24;
-        size.ws_xpixel = 0;
-        size.ws_ypixel = 0;
-
-        ioctl(STDOUT_FILENO,TIOCSWINSZ,&size);
-        ioctl(STDOUT_FILENO,TIOCGWINSZ,&size);
-        printf("Terminal type is %s:%dx%d\n\n", (const char *) terminal_type,
-               size.ws_col, size.ws_row, size.ws_xpixel, size.ws_ypixel);
 
         printf("\n");
 
@@ -149,9 +167,9 @@ int main(int argc, char *argv[])
         buffer[1] = '\0';
         if (buffer[0] == 'Q' || buffer[0] == 'q') {
             choice = 0xDEADBEEF;
-            } else {
+        } else {
             choice = atoi(buffer);
-            }
+        }
 
         switch (choice) {
         case 1:
@@ -279,7 +297,7 @@ int main(int argc, char *argv[])
             exit(0);
             break;
         default:
-           // cout << endl << endl << "That menu choice is invalid." << endl;
+            // cout << endl << endl << "That menu choice is invalid." << endl;
             break;
 
         }
@@ -367,10 +385,13 @@ int RunSubprocess(char *myargv[])
 
 void prompt_enter()
 {
-
+    char justify_buf[JUSTIFY_BUFSIZE];
     static char buffer[80];
     char *fgc = NULL;
-    printf ("Hit [ENTER] to continue\n");
+
+
+    snprintf ((char *) &justify_buf, JUSTIFY_BUFSIZE, "Hit [ENTER] to continue");
+    justify_text(size.ws_col, (char *) &justify_buf);
 
     fgc = fgets((char *) &buffer, 79, stdin);
     while (!fgc || (buffer[0] != '\r' && buffer[0] != '\n')) {

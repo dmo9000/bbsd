@@ -125,7 +125,7 @@ int BuildIOSelectSet()
         if ((*iter)->GetState() == STATE_DISCONNECTED && (*iter)->IsReadyForDeletion()) {
             cout << "BuildIOSelectSet(): found Pipeline for deletion" << endl;
             //(*iter)->Shutdown();
-            PerformShutdown(*iter); 
+            PerformShutdown(*iter);
             /* remove from the vector of open pipelines */
             for ( iter2 = SelectablePipelines.begin(); iter2 != SelectablePipelines.end(); )
                 if(*iter2 == *iter) {
@@ -150,7 +150,7 @@ void ShutdownIO()
     std::vector<Pipeline*>::iterator iter, end, iter2;
     for(iter = SelectablePipelines.begin(), end = SelectablePipelines.end() ; iter != end; iter++) {
         //(*iter)->Shutdown();
-        PerformShutdown(*iter); 
+        PerformShutdown(*iter);
     }
 
 }
@@ -327,13 +327,13 @@ int RunIOSelectSet()
                         struct sockaddr_in *s = (struct sockaddr_in *)&cli_addr;
                         new_nvt->port = ntohs(s->sin_port);
                         inet_ntop(AF_INET, &s->sin_addr, new_nvt->ipstr, sizeof(new_nvt->ipstr));
-                        } else { // AF_INET6
+                    } else { // AF_INET6
                         printf("IPV6\n");
                         exit(1);
                         struct sockaddr_in6 *s = (struct sockaddr_in6 *)&cli_addr;
                         new_nvt->port = ntohs(s->sin6_port);
-                        inet_ntop(AF_INET6, &s->sin6_addr, new_nvt->ipstr, sizeof(new_nvt->ipstr)); 
-                        }
+                        inet_ntop(AF_INET6, &s->sin6_addr, new_nvt->ipstr, sizeof(new_nvt->ipstr));
+                    }
                     //printf("+++ CLIENT IP address: %s:%u\n", new_nvt->ipstr, new_nvt->port);
                     // telnet connection is bi-direction TCP communication via a single socket
                     new_nvt->RegisterSocket(newsockfd, newsockfd);
@@ -355,7 +355,7 @@ int RunIOSelectSet()
                     /* start the child process */
                     strncpy((char *) &shell->ipstr, (char *) &new_nvt->ipstr, INET6_ADDRSTRLEN);
                     shell->port  = new_nvt->port;
-                    
+
                     child_process = shell->StartProcess(myargv[0], myargv);
                     cout << "child process pid is " << child_process << endl;
                     r = shell->GetPipeFD(PARENT_READ_PIPE, READ_FD);
@@ -375,7 +375,7 @@ int RunIOSelectSet()
                     PerformReadIO(*iter);
                     if ((*iter)->GetState() == STATE_DISCONNECTED && (*iter)->IsReadyForDeletion()) {
                         cout << "Pipeline is unconnected, and marked for deletion, closing" << endl;
-                       // (*iter)->Shutdown();
+                        // (*iter)->Shutdown();
                         PerformShutdown(*iter);
                         /* remove from the vector of open pipelines */
                         for ( iter2 = SelectablePipelines.begin(); iter2 != SelectablePipelines.end(); )
@@ -417,8 +417,8 @@ int RunIOSelectSet()
                                         cout << "+++ Error on write pipeline flush! w = " << w << endl;
                                         cout << "Error: " << errno << endl;
                                         exit(1);
-                                        }
                                     }
+                                }
                             }
                         }
                     }
@@ -532,7 +532,7 @@ int main(int argc, char *argv[])
             cout << "RunIOSelectSet() failed" << endl;
             exit(1);
         }
-        
+
     }
 
     cout << "Shutting down sockets ..." << endl;

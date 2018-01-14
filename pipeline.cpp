@@ -196,22 +196,22 @@ int Pipeline::pWrite()
         }
 
 
-    /* if we reach here, not all bytes could be written to the output, so we need to trim the head of the buffer 
-       by the number of bytes that were written */
+        /* if we reach here, not all bytes could be written to the output, so we need to trim the head of the buffer
+           by the number of bytes that were written */
 
-       cout << "+++ only wrote " << w << "/" << wsize << endl;
-       cout << "+++ remainder is "<< (wsize-w) << endl;
-       memset(&trimbuffer, 0, BUFSIZE);
-       for (i = 0; i < (wsize - w); i++) {
-        /* slow copy - memmove() causes a crash due to misalignment here? */
-        trimbuffer[i] = wbuf[w+i];
+        cout << "+++ only wrote " << w << "/" << wsize << endl;
+        cout << "+++ remainder is "<< (wsize-w) << endl;
+        memset(&trimbuffer, 0, BUFSIZE);
+        for (i = 0; i < (wsize - w); i++) {
+            /* slow copy - memmove() causes a crash due to misalignment here? */
+            trimbuffer[i] = wbuf[w+i];
         }
-       memset(&wbuf, 0, BUFSIZE);
-       memcpy(&wbuf, &trimbuffer, (wsize-w)); 
-       wsize = wsize - w;
-       return w;
+        memset(&wbuf, 0, BUFSIZE);
+        memcpy(&wbuf, &trimbuffer, (wsize-w));
+        wsize = wsize - w;
+        return w;
     }
-    wsize = 0; 
+    wsize = 0;
     return w;
 }
 

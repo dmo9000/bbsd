@@ -10,10 +10,10 @@ using std::endl;
 //#define WRITE_FD 1
 
 /*
-#define PARENT_READ_FD   pipes[PARENT_READ_PIPE][READ_FD]   
-#define PARENT_WRITE_FD  pipes[PARENT_WRITE_PIPE][WRITE_FD] 
-#define CHILD_READ_FD    pipes[PARENT_WRITE_PIPE][READ_FD]  
-#define CHILD_WRITE_FD   pipes[PARENT_READ_PIPE][WRITE_FD]  
+#define PARENT_READ_FD   pipes[PARENT_READ_PIPE][READ_FD]
+#define PARENT_WRITE_FD  pipes[PARENT_WRITE_PIPE][WRITE_FD]
+#define CHILD_READ_FD    pipes[PARENT_WRITE_PIPE][READ_FD]
+#define CHILD_WRITE_FD   pipes[PARENT_READ_PIPE][WRITE_FD]
 */
 
 Subprocess::Subprocess()
@@ -23,7 +23,7 @@ Subprocess::Subprocess()
 
 Subprocess::~Subprocess()
 {
- //   cout << "Subprocess destroyed" << endl;
+//   cout << "Subprocess destroyed" << endl;
 }
 
 int Subprocess::GetPipeFD(int pair, int channel)
@@ -77,8 +77,8 @@ pid_t Subprocess::StartProcess(const char *path, char **argv)
     p = pipe(pipes[PARENT_WRITE_PIPE]);
 //    printf("Create parent write pipe = %d\n", p);
 //
-  //  snprintf((char *) &transport_path, 2047, "tcp@%s:%u", ipstr, port);
-   // setenv("TRANSPORT_PATH", (char *) &transport_path, 1);
+    //  snprintf((char *) &transport_path, 2047, "tcp@%s:%u", ipstr, port);
+    // setenv("TRANSPORT_PATH", (char *) &transport_path, 1);
     //printf("Exported TRANSPORT_PATH=%s\n", transport_path);
 
     child_pid = fork();
@@ -86,9 +86,9 @@ pid_t Subprocess::StartProcess(const char *path, char **argv)
 
         snprintf((char *) &transport_path, 2047, "tcp@%s:%u", ipstr, port);
         setenv("TRANSPORT_PATH", (char *) &transport_path, 1);
-        
+
         /* we are within the child process here */
-        p = dup2(CHILD_READ_FD, STDIN_FILENO);      
+        p = dup2(CHILD_READ_FD, STDIN_FILENO);
         //cout << "child: read_fd = "  << p << endl;
         p = dup2(CHILD_WRITE_FD, STDOUT_FILENO);
         //cout << "child: write_fd = "  << p << endl;
@@ -99,7 +99,7 @@ pid_t Subprocess::StartProcess(const char *path, char **argv)
         close(PARENT_READ_FD);
         close(PARENT_WRITE_FD);
 
-		/* close stderr  - we may want to do something else with this later */
+        /* close stderr  - we may want to do something else with this later */
         close(2);
 
         /* wait until connect_time >= 5 */
@@ -112,7 +112,7 @@ pid_t Subprocess::StartProcess(const char *path, char **argv)
             SetState(STATE_DISCONNECTED);
             SetReadyForDeletion();
             exit(255);
-            };
+        };
 
 
         /* never return */
@@ -129,9 +129,9 @@ pid_t Subprocess::StartProcess(const char *path, char **argv)
 //    cout << "+PARENT_READ_FD:   " << PARENT_READ_FD << endl;
 //    for (i = 0; i < 2; i++) {
 //        for (j = 0; j < 2; j++) {
- //           printf("pipes[%d][%d]=%d\n", i, j, pipes[i][j]);
- //           }
-  //      }
+//           printf("pipes[%d][%d]=%d\n", i, j, pipes[i][j]);
+//           }
+    //      }
 
     return child_pid;
 }
@@ -141,14 +141,14 @@ void Subprocess::Shutdown()
 {
     pid_t c = 0;
     int wstatus;
-    int options = WNOHANG; 
+    int options = WNOHANG;
     cout << "+++ Subprocess:Shutdown()" << endl;
     Pipeline::Shutdown();
     cout << "+++ Reaping child pid " << child_pid << endl;
     if (kill(child_pid, SIGKILL) == -1) {
         cout << "Error: " << errno << endl;
-        };
-    c =  waitpid(child_pid, &wstatus, options);  
+    };
+    c =  waitpid(child_pid, &wstatus, options);
     cout << "+++ Reap status: " << c << endl;
     return;
 }

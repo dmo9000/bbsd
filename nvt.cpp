@@ -70,7 +70,7 @@ int NVT::pRead()
             if (!optsize) {
                 cout << "+++ Error; option processing return size 0\n";
                 exit(1);
-                }
+            }
             cout << "option size: " << optsize << endl;
             i += (optsize - 1); /* we subtract one to line up with the next byte in the stream */
             cout << "i now equals: " << i << endl;
@@ -84,7 +84,7 @@ int NVT::pRead()
 
     if (rsize > o) {
         cout << "+++ options processing reduced buffer from " << rsize << " to " << o << endl;
-        }
+    }
 
     memset(GetReadBuffer(), 0, BUFSIZE);
     memcpy(GetReadBuffer(), &nvt_rbuf, o);
@@ -107,7 +107,7 @@ int NVT::pWrite()
     cout << "NVT::pWrite()" << endl;
 
     /*
-            DEPRECATED! DON'T USE! 
+            DEPRECATED! DON'T USE!
 
     */
     if (!line_discipline) {
@@ -125,22 +125,22 @@ int NVT::pWrite()
             out_idx+=2;
             break;
         case '\n':
-           
+
             /*
-            When the Binary option has been successfully negotiated, arbitrary 8-bit characters are allowed. However, the data stream MUST still be 
+            When the Binary option has been successfully negotiated, arbitrary 8-bit characters are allowed. However, the data stream MUST still be
             scanned for IAC characters, any embedded Telnet commands MUST be obeyed, and data bytes equal to IAC MUST be doubled. Other character processing
              (e.g., replacing CR by CR NUL or by CR LF) MUST NOT be done. In particular, there is no end-of-line convention (see Section 3.3.1) in binary mode. */
- 
+
             if (!server_do_binary) {
                 /* manage lines - FIXME: should check for just CR here as well as LF. Check what should happens in the case of a lone CR */
                 nvt_wbuf[out_idx] = '\r';
                 nvt_wbuf[out_idx+1] = '\n';
                 out_idx+=2;
-                } else { 
+            } else {
                 /* pass through */
                 nvt_wbuf[out_idx] = ptr[i];
                 out_idx++;
-                }
+            }
             break;
         default:
             nvt_wbuf[out_idx] = ptr[i];
@@ -333,7 +333,7 @@ int NVT::IAC_Wont(uint8_t opt)
         client_will_newenviron = false;
         cout << ">RCVD WONT NEWENVIRON\n";
         return 2;
-    default: 
+    default:
         cout << "++ Unhandled\n";
         exit(1);
         break;
@@ -374,7 +374,7 @@ int NVT::IAC_Do(uint8_t opt)
         cout << ">RCVD WONT NEWENVIRON\n";
         return 2;
     */
-    default: 
+    default:
         cout << "++ Unhandled\n";
         exit(1);
         break;
@@ -386,7 +386,7 @@ int NVT::IAC_Do(uint8_t opt)
 int NVT::IAC_Dont(uint8_t opt)
 {
     printf("NVT::IAC_Dont(0x%02x)\n", opt);
-   switch(opt) {
+    switch(opt) {
     case BINARY:
         server_do_binary = false;
         cout << ">RCVD DONT BINARY\n";
@@ -413,7 +413,7 @@ int NVT::IAC_Dont(uint8_t opt)
         cout << ">RCVD WONT NEWENVIRON\n";
         return 2;
     */
-    default: 
+    default:
         cout << "++ Unhandled\n";
         exit(1);
         break;
