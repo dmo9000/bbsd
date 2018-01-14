@@ -115,7 +115,7 @@ int main(int argc, char *argv[])
 
     myargv[0] = (char *) "/usr/bin/tdftool";
     myargv[1] = (char *) "/usr/local/bbsd/fonts/HGSIERAX.TDF";
-    myargv[2] = (char *) "      intergalatic software corp";
+    myargv[2] = (char *) "     Intergalatic Software Corp";
     myargv[3] = NULL;
     if (!RunSubprocess(myargv)) {
         cout << endl << "Error: couldn't start process" << endl;
@@ -132,14 +132,13 @@ int main(int argc, char *argv[])
     ioctl(STDOUT_FILENO,TIOCSWINSZ,&size);
     ioctl(STDOUT_FILENO,TIOCGWINSZ,&size);
 
-
     snprintf((char *) &justify_buf, JUSTIFY_BUFSIZE, "Terminal type is %s:%dx%d\n\n", 
             (const char *) terminal_type, size.ws_col, size.ws_row, size.ws_xpixel, size.ws_ypixel);
     justify_text(size.ws_col, (char *) &justify_buf);
 
     snprintf((char *) &justify_buf, JUSTIFY_BUFSIZE, "You are connected on node [%s] via gateway [%s]\n", myhostname, router_hostname);
     justify_text(size.ws_col, (char *) &justify_buf);
-
+    cout << endl << endl;
     prompt_enter();
 
     while (!logoff_requested) {
