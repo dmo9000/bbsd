@@ -115,7 +115,7 @@ int main(int argc, char *argv[])
 
     myargv[0] = (char *) "/usr/bin/tdftool";
     myargv[1] = (char *) "-f";
-    myargv[2] = (char *) "2";
+    myargv[2] = (char *) "4";
     myargv[3] = (char *) "/usr/local/bbsd/fonts/HGSIERAX.TDF";
     myargv[4] = (char *) "    Intergalactic Software Corp";
     myargv[5] = NULL;
