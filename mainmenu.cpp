@@ -114,9 +114,11 @@ int main(int argc, char *argv[])
     cout << endl << endl << endl << endl << endl << endl;
 
     myargv[0] = (char *) "/usr/bin/tdftool";
-    myargv[1] = (char *) "/usr/local/bbsd/fonts/HGSIERAX.TDF";
-    myargv[2] = (char *) "    Intergalactic Software Corp";
-    myargv[3] = NULL;
+    myargv[1] = (char *) "-f";
+    myargv[2] = (char *) "2";
+    myargv[3] = (char *) "/usr/local/bbsd/fonts/HGSIERAX.TDF";
+    myargv[4] = (char *) "    Intergalactic Software Corp";
+    myargv[5] = NULL;
     if (!RunSubprocess(myargv)) {
         cout << endl << "Error: couldn't start process" << endl;
         exit(1);
