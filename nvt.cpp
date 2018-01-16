@@ -297,7 +297,7 @@ int NVT::IAC_Will(uint8_t opt)
         cout << ">RCVD WILL NEWENVIRON\n";
         return 2;
     default:
-        cout << "++ Unhandled\n";
+        printf("+++ UNHANDLED NVT::IAC_Will(0x%02x)\n", opt);
         exit(1);
         break;
     }
@@ -334,7 +334,7 @@ int NVT::IAC_Wont(uint8_t opt)
         cout << ">RCVD WONT NEWENVIRON\n";
         return 2;
     default:
-        cout << "++ Unhandled\n";
+        printf("+++ UNHANDLED NVT::IAC_Wont(0x%02x)\n", opt);
         exit(1);
         break;
     }
@@ -382,7 +382,7 @@ int NVT::IAC_Do(uint8_t opt)
         return 2;
         break;
     default:
-        cout << "++ Unhandled\n";
+        printf("+++ UNHANDLED NVT::IAC_Do(0x%02x)\n", opt);
         exit(1);
         break;
     }
@@ -421,7 +421,7 @@ int NVT::IAC_Dont(uint8_t opt)
         return 2;
     */
     default:
-        cout << "++ Unhandled\n";
+        printf("+++ UNHANDLED NVT::IAC_Dont(0x%02x)\n", opt);
         exit(1);
         break;
     }
