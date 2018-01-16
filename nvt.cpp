@@ -304,7 +304,7 @@ int NVT::IAC_Will(uint8_t opt)
         break;
     default:
         /* send IAC_DONT for anything not explicitly supported */ 
-        printf("+++ SENDING IAC_DONT(0x%02x)\n", opt);
+        printf("+++ SENDING IAC_DONT(0x%02x) [UNSUPPORTED]\n", opt);
         IAC_Dont(opt);
         return 2;
         printf("+++ UNHANDLED NVT::IAC_Will(0x%02x)\n", opt);
