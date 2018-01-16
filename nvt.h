@@ -42,8 +42,9 @@ private:
     bool client_will_xdisplaylocation = false;
     bool client_will_newenviron = false;
     bool client_will_binary = false;
+    bool client_will_suppressgoahead = false;
     bool server_do_binary = false;
-    bool server_suppress_goahead = false;
+    bool server_will_suppressgoahead = false;
     bool option_neg_pass_1 = false;
 
 public:

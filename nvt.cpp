@@ -296,6 +296,12 @@ int NVT::IAC_Will(uint8_t opt)
         client_will_newenviron = true;
         cout << ">RCVD WILL NEWENVIRON\n";
         return 2;
+        break;
+    case SUPPRESSGOAHEAD:
+        client_will_suppressgoahead=true;
+        cout << ">RCVD WILL SUPPRESSGOAHEAD\n";
+        return 2;
+        break;
     default:
         printf("+++ UNHANDLED NVT::IAC_Will(0x%02x)\n", opt);
         exit(1);
@@ -376,7 +382,7 @@ int NVT::IAC_Do(uint8_t opt)
         return 2;
     */
     case SUPPRESSGOAHEAD:
-        server_suppress_goahead = true; 
+        server_will_suppressgoahead = true; 
         cout << ">RCVD DO SUPPRESS GOAHEAD\n";
         IAC_Will(SUPPRESSGOAHEAD);
         return 2;
