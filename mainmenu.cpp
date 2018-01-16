@@ -109,9 +109,8 @@ int main(int argc, char *argv[])
 
     printf ("%c[H%c[2J", CHAR_ESCAPE, CHAR_ESCAPE);
     printf ("%c[1;1H", CHAR_ESCAPE);
-    printf ("\n");
 
-    cout << endl << endl << endl << endl << endl << endl;
+    printf("\r\n\r\n\r\n");
 
     myargv[0] = (char *) "/usr/bin/tdftool";
     myargv[1] = (char *) "-f";
