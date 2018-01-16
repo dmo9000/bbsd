@@ -395,6 +395,10 @@ int NVT::IAC_Do(uint8_t opt)
         return 2;
         break;
     default:
+        printf("+++ SENDING IAC_DONT(0x%02x) [UNSUPPORTED]\n", opt);
+        IAC_Wont(opt);
+        return 2;
+        break;
         printf("+++ UNHANDLED NVT::IAC_Do(0x%02x)\n", opt);
         exit(1);
         break;
