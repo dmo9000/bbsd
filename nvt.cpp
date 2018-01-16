@@ -344,6 +344,9 @@ int NVT::IAC_Wont(uint8_t opt)
         cout << ">RCVD WONT NEWENVIRON\n";
         return 2;
     default:
+        printf("+++ RCVD IAC_WONT(0x%02x)\n", opt);
+        return 2;
+        break;
         printf("+++ UNHANDLED NVT::IAC_Wont(0x%02x)\n", opt);
         exit(1);
         break;
