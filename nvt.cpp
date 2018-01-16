@@ -348,6 +348,7 @@ int NVT::IAC_Do(uint8_t opt)
 
 
     switch(opt) {
+    
     case BINARY:
         server_do_binary = true;
         cout << ">RCVD DO BINARY\n";
@@ -374,6 +375,12 @@ int NVT::IAC_Do(uint8_t opt)
         cout << ">RCVD WONT NEWENVIRON\n";
         return 2;
     */
+    case SUPPRESSGOAHEAD:
+        server_suppress_goahead = true; 
+        cout << ">RCVD DO SUPPRESS GOAHEAD\n";
+        IAC_Will(SUPPRESSGOAHEAD);
+        return 2;
+        break;
     default:
         cout << "++ Unhandled\n";
         exit(1);
