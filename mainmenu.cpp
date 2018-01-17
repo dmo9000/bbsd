@@ -82,6 +82,7 @@ int main(int argc, char *argv[])
     int sp = 0;
     char *env_v = NULL;
     char *router_hostname = NULL;
+    int ii = 0;
 
     /* FIXME: we should refuse to run unless we are running as user nobody */
 
@@ -110,7 +111,7 @@ int main(int argc, char *argv[])
     printf ("%c[H%c[2J", CHAR_ESCAPE, CHAR_ESCAPE);
     printf ("%c[1;1H", CHAR_ESCAPE);
 
-    for (i = 0 ; i < 8; i++) {
+    for (ii = 0 ; ii < 8; ii++) {
         printf("\r\n");
         }
 
