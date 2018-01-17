@@ -307,7 +307,7 @@ int RunIOSelectSet()
     case 0:
         /* timeout, no I/O - that is okay */
 //        cout << "Timeout" << endl;
-        usleep(10000);
+        usleep(20000);
         return 1;
         break;
     default:
