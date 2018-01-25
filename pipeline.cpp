@@ -8,7 +8,6 @@ using std::endl;
 Pipeline::Pipeline()
 {
 
-    //cout << "Pipeline created" << endl;
     pType = Pipeline_Type::PIPELINE_RAW;
 
 }
@@ -16,6 +15,15 @@ Pipeline::Pipeline()
 Pipeline::~Pipeline()
 {
     cout << "Pipeline destroyed" << endl;
+		if (rsock > 0) {
+			shutdown(rsock);
+			close(rsock);
+			}
+
+		if (wsock > 0) {
+			shutdown(wsock);
+			close(wsock);
+			}
 
 }
 

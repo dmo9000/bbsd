@@ -35,8 +35,6 @@ private:
     int wsock = -1;
     uint16_t rsize = 0;
     uint16_t wsize = 0;
-//    uint8_t rbuf[BUFSIZE];
-//    uint8_t wbuf[BUFSIZE];
     bool selected = false; 
     bool ready_for_deletion = false;
     bool debugging = false;
