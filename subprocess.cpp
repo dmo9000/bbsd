@@ -105,7 +105,7 @@ pid_t Subprocess::StartProcess(const char *path, char **argv)
         /* wait until connect_time >= 5 */
 
         if (execv(argv[0], argv) == -1) {
-            cout << "Couldn't start subprocess" << endl;
+            cout << "Couldn't start subprocess -> " << argv[0] << endl;
             perror("execv");
             GetNextPipeline()->SetState(STATE_DISCONNECTED);
             GetNextPipeline()->SetReadyForDeletion();
