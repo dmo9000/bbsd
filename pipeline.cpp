@@ -16,12 +16,12 @@ Pipeline::~Pipeline()
 {
     cout << "Pipeline destroyed" << endl;
 		if (rsock > 0) {
-			shutdown(rsock);
+			shutdown(rsock, SHUT_RDWR);
 			close(rsock);
 			}
 
 		if (wsock > 0) {
-			shutdown(wsock);
+			shutdown(wsock, SHUT_RDWR);
 			close(wsock);
 			}
 
