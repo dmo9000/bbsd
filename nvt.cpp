@@ -388,6 +388,11 @@ int NVT::IAC_Do(uint8_t opt)
         cout << ">RCVD WONT NEWENVIRON\n";
         return 2;
     */
+    case WINDOWSIZE:
+        cout << ">RCVD DO WINDOWSIZE\n";
+        IAC_Wont(WINDOWSIZE);
+        return 2;
+				break;
     case SUPPRESSGOAHEAD:
         server_will_suppressgoahead = true; 
         cout << ">RCVD DO SUPPRESS GOAHEAD\n";
