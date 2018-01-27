@@ -254,7 +254,7 @@ int NVT::IAC_Process(uint8_t *buf)
         rc = IAC_Dont(buf[2]);
         break;
     default:
-        cout << "+++ Unknown telnet option command! -> %u\n" << buf[2] << endl;
+        printf("+++ Unknown telnet option command! -> %u (0x%02x)\n", buf[2], buf[2]);
         exit(1);
     }
 
