@@ -254,8 +254,10 @@ int NVT::IAC_Process(uint8_t *buf)
         rc = IAC_Dont(buf[2]);
         break;
     default:
-        printf("+++ Unknown telnet option command! -> %u (0x%02x)\n", buf[2], buf[2]);
-        exit(1);
+        printf("+++ Unknown or malformed telnet option command! -> %u (0x%02x), ignoring \n", buf[2], buf[2]);
+			  rc = 1;
+				l++;
+				break;
     }
 
     if (!rc) {
