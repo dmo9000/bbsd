@@ -3,7 +3,7 @@ Description=bbsd
 
 [Service]
 ExecStart=/usr/local/bbsd/pmain
-Restart=always
+TasksMax=infinity
 
 [Install]
 WantedBy=multi-user.target
