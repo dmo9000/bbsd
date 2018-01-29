@@ -254,8 +254,10 @@ int NVT::IAC_Process(uint8_t *buf)
         rc = IAC_Dont(buf[2]);
         break;
     default:
-        cout << "+++ Unknown telnet option command!\n";
-        exit(1);
+        printf("+++ Unknown or malformed telnet option command! -> %u (0x%02x), ignoring \n", buf[2], buf[2]);
+			  rc = 1;
+				l++;
+				break;
     }
 
     if (!rc) {
@@ -388,6 +390,11 @@ int NVT::IAC_Do(uint8_t opt)
         cout << ">RCVD WONT NEWENVIRON\n";
         return 2;
     */
+    case WINDOWSIZE:
+        cout << ">RCVD DO WINDOWSIZE\n";
+        IAC_Wont(WINDOWSIZE);
+        return 2;
+				break;
     case SUPPRESSGOAHEAD:
         server_will_suppressgoahead = true; 
         cout << ">RCVD DO SUPPRESS GOAHEAD\n";
