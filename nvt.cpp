@@ -168,7 +168,7 @@ int NVT::pWrite()
 
 void NVT::Shutdown()
 {
-    cout << "NVT::Shutdown()" << endl;
+    cout << "+++ NVT::Shutdown()" << endl;
     Pipeline::Shutdown();
     return;
 

@@ -141,15 +141,16 @@ void Subprocess::Shutdown()
 {
     pid_t c = 0;
     int wstatus;
-    int options = WNOHANG;
+//    int options = WNOHANG;				/* can introduce zombies, because we don't come back later to try again if the child has not exited immediately */
+		int options = 0;
     cout << "+++ Subprocess:Shutdown()" << endl;
     Pipeline::Shutdown();
-    cout << "+++ Reaping child pid " << child_pid << endl;
+    cout << "  - reaping child pid " << child_pid << endl;
     if (kill(child_pid, SIGKILL) == -1) {
         cout << "Error: " << errno << endl;
     };
     c =  waitpid(child_pid, &wstatus, options);
-    cout << "+++ Reap status: " << c << endl;
+    cout << "  - reap status: " << c << endl;
     return;
 }
 
