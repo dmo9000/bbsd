@@ -14,7 +14,24 @@ Pipeline::Pipeline()
 
 Pipeline::~Pipeline()
 {
+
+		switch (pType) {
+				case Pipeline_Type::PIPELINE_RAW:
+    				cout << "+++ Pipeline::~Pipeline(): destroying PIPELINE_RAW" << endl;
+						break;
+				case Pipeline_Type::PIPELINE_NVT:
+    				cout << "+++ Pipeline::~Pipeline(): destroying PIPELINE_NVT" << endl;
+						break;
+				case Pipeline_Type::PIPELINE_SUBPROCESS:
+    				cout << "+++ Pipeline::~Pipeline(): destroying PIPELINE_SUBPROCESS" << endl;
+						break;
+				default:
+    				cout << "+++ Pipeline::~Pipeline(): destroying unknown type!" << endl;
+						break;
+				}
+
     cout << "Pipeline destroyed" << endl;
+
 		if (rsock > 0) {
 			shutdown(rsock, SHUT_RDWR);
 			close(rsock);
