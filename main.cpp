@@ -389,7 +389,7 @@ int RunIOSelectSet()
                             if (w <= 0) {
                                 if (errno != EAGAIN) {
                                     cout << "+++ Error on write pipeline flush! w = " << w << endl;
-                                    cout << "Error: " << errno << endl;
+                                    cout << "Error: " << strerror(errno) << endl;
                                     exit(1);
                                 }
                             }
