@@ -52,6 +52,12 @@ Pipeline::~Pipeline()
 
 }
 
+void Pipeline::SetStartTime(time_t t)
+{
+    start_time = t;
+}
+
+
 Pipeline *Pipeline::GetNextPipeline()
 {
     return next_pipeline;

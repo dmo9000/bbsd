@@ -19,6 +19,8 @@ using std::cout;
 using std::endl;
 using std::vector;
 
+//#define DEBUG_TRANSFERIO
+
 /*
 
 		This code will probably never need to run on Windows, but if it ever does, bear
@@ -350,7 +352,7 @@ int RunIOSelectSet()
                     shell->port  = new_nvt->port;
 
                     child_process = shell->StartProcess(myargv[0], myargv);
-                    cout << "child process pid is " << child_process << endl;
+                    //cout << "  child process pid is " << child_process << endl;
                     r = shell->GetPipeFD(PARENT_READ_PIPE, READ_FD);
                     w = shell->GetPipeFD(PARENT_WRITE_PIPE, WRITE_FD);
                     shell->RegisterSocket(r, w);
@@ -382,7 +384,9 @@ int RunIOSelectSet()
                             memcpy(d->GetWriteBuffer(), s->GetReadBuffer(),  r);
                             d->SetWbufsize(d->GetWbufsize() + r);
                             w = PerformWriteIO(d);
+#ifdef DEBUG_TRANSFERIO
                             cout << "Transferred " << w << " bytes" << endl;
+#endif /* DEBUG_TRANSFERIO */
                             s->SetRbufsize(0);
                         } else {
                             w = d->pWrite();

@@ -5,17 +5,24 @@
 using std::cout;
 using std::endl;
 
+//#define DEBUG_LIFECYCLE
+//#define DEBUG_TELNETOPTIONS
+//#define DEBUG_IO
+
 
 NVT::NVT()
 {
+#ifdef DEBUG_LIFECYCLE
     cout << "NVT created" << endl;
+#endif /* DEBUG_LIFECYCLE */
     SetStartTime(time(NULL));
-
 }
 
 NVT::~NVT()
 {
+#ifdef DEBUG_LIFECYCLE
     cout << "NVT destroyed" << endl;
+#endif /* DEBUG_LIFECYCLE */
 }
 
 int NVT::RegisterSocket(int r, int w)
@@ -29,7 +36,7 @@ int NVT::RegisterSocket(int r, int w)
     fcntl(r, F_SETFL, flags | O_NONBLOCK);
     flags = fcntl(w, F_GETFL, 0);
     fcntl(w, F_SETFL, flags | O_NONBLOCK);
-    cout << "NVT set sockets to non-blocking mode" << endl;
+    //cout << "NVT set sockets to non-blocking mode" << endl;
 
     SetPipelineType(Pipeline_Type::PIPELINE_NVT);
 
@@ -47,7 +54,9 @@ int NVT::pRead()
     int optsize = 0;
 
     ptr = GetReadBuffer();
+#ifdef DEBUG_IO
     cout << "NVT::pRead()" << endl;
+#endif /* DEBUG_IO */
     if (!GetNextPipeline()) {
         /* there is data available, but we have nowhere to send it */
         SetState(STATE_DISCONNECTED);
@@ -64,16 +73,26 @@ int NVT::pRead()
         ptr = GetReadBuffer() + i;
         switch (ptr[0]) {
         case IAC:
+#ifdef DEBUG_TELNETOPTIONS
             cout << "+++ IAC received in stream at offset " << ((uint8_t*) ptr - GetReadBuffer()) << endl;
+#endif /* DEBUG_TELNETOPTIONS */
             //Debug_Read();
             optsize = IAC_Process(ptr);
             if (!optsize) {
                 cout << "+++ Error; option processing return size 0\n";
                 exit(1);
             }
+#ifdef DEBUG_TELNETOPTIONS
             cout << "option size: " << optsize << endl;
-            i += (optsize - 1); /* we subtract one to line up with the next byte in the stream */
+#endif /* DEBUG_TELNETOPTIONS */
+
+            i += (optsize - 1);
+						 /* we subtract one to line up with the next byte in the stream */
+			
+
+#ifdef DEBUG_TELNETOPTIONS
             cout << "i now equals: " << i << endl;
+#endif /* DEBUG_TELNETOPTIONS */
             break;
         default:
             nvt_rbuf[o] = ptr[0];
@@ -82,9 +101,11 @@ int NVT::pRead()
         }
     }
 
+#ifdef DEBUG_TELNETOPTIONS
     if (rsize > o) {
         cout << "+++ options processing reduced buffer from " << rsize << " to " << o << endl;
     }
+#endif /* DEBUG_TELNETOPTIONS */
 
     memset(GetReadBuffer(), 0, BUFSIZE);
     memcpy(GetReadBuffer(), &nvt_rbuf, o);
@@ -104,7 +125,9 @@ int NVT::pWrite()
     uint16_t remain = GetWbufsize();
     uint8_t *ptr = GetWriteBuffer();
 
+#ifdef DEBUG_IO
     cout << "NVT::pWrite()" << endl;
+#endif /* DEBUG_IO */
 
     /*
             DEPRECATED! DON'T USE!
@@ -210,11 +233,6 @@ int NVT::NegotiateOptions()
 
 }
 
-void NVT::SetStartTime(time_t t)
-{
-    start_time = t;
-}
-
 void NVT::UpdateConnectTime()
 {
     connect_time = time(NULL) - start_time;
@@ -232,7 +250,9 @@ int NVT::IAC_Process(uint8_t *buf)
     int l = 0;
     int rc = 0;
 
+#ifdef DEBUG_TELNETOPTIONS
     cout << "NVT::IAC_Process()\n";
+#endif /* DEBUG_TELNETOPTIONS */
     if (buf[0] != IAC) {
         cout << "+++ IAC_Process: error!\n";
         exit(1);
@@ -272,7 +292,10 @@ int NVT::IAC_Process(uint8_t *buf)
 
 int NVT::IAC_Will(uint8_t opt)
 {
+#ifdef DEBUG_TELNETOPTIONS
     printf("NVT::IAC_Will(0x%02x)\n", opt);
+#endif /* DEBUG_TELNETOPTIONS */
+
     switch(opt) {
     case BINARY:
         client_will_binary = true;
@@ -319,7 +342,9 @@ int NVT::IAC_Will(uint8_t opt)
 
 int NVT::IAC_Wont(uint8_t opt)
 {
+#ifdef DEBUG_TELNETOPTIONS
     printf("NVT::IAC_Wont(0x%02x)\n", opt);
+#endif /* DEBUG_TELNETOPTIONS */
     switch(opt) {
     case BINARY:
         client_will_binary = false;
@@ -359,8 +384,9 @@ int NVT::IAC_Wont(uint8_t opt)
 
 int NVT::IAC_Do(uint8_t opt)
 {
+#ifdef DEBUG_TELNETOPTIONS
     printf("NVT::IAC_Do(0x%02x)\n", opt);
-
+#endif /* DEBUG_TELNETOPTIONS */
 
     switch(opt) {
     
@@ -416,7 +442,9 @@ int NVT::IAC_Do(uint8_t opt)
 
 int NVT::IAC_Dont(uint8_t opt)
 {
+#ifdef DEBUG_TELNETOPTIONS
     printf("NVT::IAC_Dont(0x%02x)\n", opt);
+#endif /* DEBUG_TELNETOPTIONS */
     switch(opt) {
     case BINARY:
         server_do_binary = false;

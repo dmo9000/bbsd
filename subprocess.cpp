@@ -7,23 +7,22 @@
 using std::cout;
 using std::endl;
 
-//#define WRITE_FD 1
-
-/*
-#define PARENT_READ_FD   pipes[PARENT_READ_PIPE][READ_FD]
-#define PARENT_WRITE_FD  pipes[PARENT_WRITE_PIPE][WRITE_FD]
-#define CHILD_READ_FD    pipes[PARENT_WRITE_PIPE][READ_FD]
-#define CHILD_WRITE_FD   pipes[PARENT_READ_PIPE][WRITE_FD]
-*/
+//#define DEBUG_LIFECYCLE
+//#define DEBUG_IO
 
 Subprocess::Subprocess()
 {
-//    cout << "Subprocess created" << endl;
+#ifdef DEBUG_LIFECYCLE
+    cout << "Subprocess created" << endl;
+#endif /* DEBUG_LIFECYCLE */
+		SetStartTime(time(NULL));
 }
 
 Subprocess::~Subprocess()
 {
-//   cout << "Subprocess destroyed" << endl;
+#ifdef DEBUG_LIFECYCLE
+   cout << "Subprocess destroyed" << endl;
+#endif /* DEBUG_LIFECYCLE */
 }
 
 int Subprocess::GetPipeFD(int pair, int channel)
@@ -48,7 +47,9 @@ int Subprocess::RegisterSocket(int r, int w)
 int Subprocess::pRead()
 {
     int r = 0;
-//    cout << "Subprocess::pRead()" << endl;
+#ifdef DEBUG_IO
+    cout << "Subprocess::pRead()" << endl;
+#endif /* DEBUG_IO */
     r = Pipeline::pRead();
     return r;
 }
@@ -56,7 +57,9 @@ int Subprocess::pRead()
 int Subprocess::pWrite()
 {
     int w = 0;
-//    cout << "Subprocess::pWrite()" << endl;
+#ifdef DEBUG_IO
+    cout << "Subprocess::pWrite()" << endl;
+#endif /* DEBUG_IO */
     //Debug_Write();
     w = Pipeline::pWrite();
     return w;
@@ -71,7 +74,7 @@ pid_t Subprocess::StartProcess(const char *path, char **argv)
 
     memset(&transport_path, 0, 2048);
 
-//    cout << "StartProcess(" << path << ")" << endl;
+    cout << "StartProcess(" << path << ")" << endl;
     p = pipe(pipes[PARENT_READ_PIPE]);
 //    printf("Create parent read pipe = %d\n", p);
     p = pipe(pipes[PARENT_WRITE_PIPE]);

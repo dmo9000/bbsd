@@ -26,6 +26,7 @@ class Pipeline
 protected:
     uint8_t rbuf[BUFSIZE];
     uint8_t wbuf[BUFSIZE];
+    time_t start_time;
 
 private:
     Pipeline* next_pipeline = NULL;
@@ -38,6 +39,7 @@ private:
     bool selected = false; 
     bool ready_for_deletion = false;
     bool debugging = false;
+
 
 public:
     Pipeline();
@@ -66,6 +68,6 @@ public:
     void SetSelected();
     bool IsReadyForDeletion();
     void SetReadyForDeletion();
-
+		void SetStartTime(time_t t);
 
 };
