@@ -127,7 +127,7 @@ int BuildIOSelectSet()
             PerformShutdown(*iter);
             delete(*iter);
             *iter = (Pipeline*) NULL;
-            
+
         } else {
             FD_SET ((*iter)->GetRsockfd(), &socketset);
         }
@@ -366,54 +366,34 @@ int RunIOSelectSet()
                 } else {
                     //cout << "[" << r << "] input received" << endl;
                     PerformReadIO(*iter);
-                    /*
-                    if ((*iter)->GetState() == STATE_DISCONNECTED && (*iter)->IsReadyForDeletion()) {
-                        cout << "Pipeline is unconnected, and marked for deletion, closing" << endl;
-                        PerformShutdown(*iter);
-                        for ( iter2 = SelectablePipelines.begin(); iter2 != SelectablePipelines.end(); )
-                            if(*iter2 == *iter) {
-                                cout << "RunIOSelectSet::Removing pipeline from vector" << endl;
-                                delete * iter2;
-                                iter2 = SelectablePipelines.erase(iter2);
-                            }
-                            else {
-                                ++iter2;
-                            }
-                    } else {
-                    */
-                        /* we have a connection, transfer the data */
+                    /* we have a connection, transfer the data */
 
-                        Pipeline *s = (*iter);
-                        Pipeline *d = (*iter)->GetNextPipeline();
-                        if (!s->GetNextPipeline() || ! d->GetNextPipeline()) {
-                            cout << "Unterminated circuit!" << endl;
-                            exit(1);
-                        }
-                        int r = s->GetRbufsize();
-                        int w = 0;
-                        if (r) {
-                            //cout << "Pipeline write! " << r << " bytes" << endl;
-                            if (d->GetWbufsize() == 0) {
-                                memcpy(d->GetWriteBuffer(), s->GetReadBuffer(),  r);
-                                d->SetWbufsize(d->GetWbufsize() + r);
-                                w = PerformWriteIO(d);
-                                cout << "Transferred " << w << " bytes" << endl;
-                                s->SetRbufsize(0);
-                            } else {
-                                //cout << "+++ Pipeline was full, couldn't transfer, write deferred\n";
-                                //printf("d->GetWbufsize() = %u, read pipe deferred until write pipe drained\n", d->GetWbufsize());
-                                /* NOTE: we are calling the Pipeline pWrite() here, not an NVT, as NVT would insert additional telnet formatting until explosion */
-                                /*       the data has already been formatted if it's in the pipeline, so we just need to send it */
-                                w = d->pWrite();
-                                if (w <= 0) {
-                                    if (errno != EAGAIN) {
-                                        cout << "+++ Error on write pipeline flush! w = " << w << endl;
-                                        cout << "Error: " << errno << endl;
-                                        exit(1);
-                                    }
+                    Pipeline *s = (*iter);
+                    Pipeline *d = (*iter)->GetNextPipeline();
+                    if (!s->GetNextPipeline() || ! d->GetNextPipeline()) {
+                        cout << "Unterminated circuit!" << endl;
+                        exit(1);
+                    }
+                    int r = s->GetRbufsize();
+                    int w = 0;
+                    if (r) {
+                        //cout << "Pipeline write! " << r << " bytes" << endl;
+                        if (d->GetWbufsize() == 0) {
+                            memcpy(d->GetWriteBuffer(), s->GetReadBuffer(),  r);
+                            d->SetWbufsize(d->GetWbufsize() + r);
+                            w = PerformWriteIO(d);
+                            cout << "Transferred " << w << " bytes" << endl;
+                            s->SetRbufsize(0);
+                        } else {
+                            w = d->pWrite();
+                            if (w <= 0) {
+                                if (errno != EAGAIN) {
+                                    cout << "+++ Error on write pipeline flush! w = " << w << endl;
+                                    cout << "Error: " << errno << endl;
+                                    exit(1);
                                 }
                             }
-                     //   }
+                        }
                     }
                 }
                 break;
