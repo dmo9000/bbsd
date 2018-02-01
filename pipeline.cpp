@@ -15,32 +15,40 @@ Pipeline::Pipeline()
 Pipeline::~Pipeline()
 {
 
-		switch (pType) {
-				case Pipeline_Type::PIPELINE_RAW:
-    				cout << "+++ Pipeline::~Pipeline(): destroying PIPELINE_RAW" << endl;
-						break;
-				case Pipeline_Type::PIPELINE_NVT:
-    				cout << "+++ Pipeline::~Pipeline(): destroying PIPELINE_NVT" << endl;
-						break;
-				case Pipeline_Type::PIPELINE_SUBPROCESS:
-    				cout << "+++ Pipeline::~Pipeline(): destroying PIPELINE_SUBPROCESS" << endl;
-						break;
-				default:
-    				cout << "+++ Pipeline::~Pipeline(): destroying unknown type!" << endl;
-						break;
-				}
+    switch (pType) {
+    case Pipeline_Type::PIPELINE_RAW:
+        cout << "+++ Pipeline::~Pipeline(): destroying PIPELINE_RAW" << endl;
+        break;
+    case Pipeline_Type::PIPELINE_NVT:
+        cout << "+++ Pipeline::~Pipeline(): destroying PIPELINE_NVT" << endl;
+        if (rsock > 0) {
+            shutdown(rsock, SHUT_RDWR);
+        }
+
+        if (wsock > 0) {
+            shutdown(wsock, SHUT_RDWR);
+        }
+
+        break;
+    case Pipeline_Type::PIPELINE_SUBPROCESS:
+        cout << "+++ Pipeline::~Pipeline(): destroying PIPELINE_SUBPROCESS" << endl;
+        break;
+    default:
+        cout << "+++ Pipeline::~Pipeline(): destroying unknown type!" << endl;
+        break;
+    }
 
     cout << "Pipeline destroyed" << endl;
 
-		if (rsock > 0) {
-			shutdown(rsock, SHUT_RDWR);
-			close(rsock);
-			}
+    if (rsock > 0) {
+        close(rsock);
+        rsock = -1;
+    }
 
-		if (wsock > 0) {
-			shutdown(wsock, SHUT_RDWR);
-			close(wsock);
-			}
+    if (wsock > 0) {
+        close(wsock);
+        rsock = -1;
+    }
 
 }
 
