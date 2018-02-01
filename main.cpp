@@ -1,4 +1,5 @@
 #define _POSIX_SOURCE
+#include <algorithm>
 #include <iostream>
 #include <csignal>
 #include <vector>
@@ -100,9 +101,8 @@ int RegisterForIO(Pipeline* p)
     return 1;
 }
 
-int UnregisterForIO(Pipeline *p, bool do_shutdown)
+int UnregisterForIO(Pipeline *p)
 {
-
 
 
 }
@@ -110,13 +110,13 @@ int UnregisterForIO(Pipeline *p, bool do_shutdown)
 int BuildIOSelectSet()
 {
 
-    std::vector<Pipeline*>::iterator iter, end, iter2;
+    std::vector<Pipeline*>::iterator iter, end;
 
 //    cout << "BuildIOSelectSet()" << endl;
 //    cout << "There are " << SelectablePipelines.size() << " pipelines registered for IO" << endl;
 
     FD_ZERO (&socketset);
-    for(iter = SelectablePipelines.begin(), end = SelectablePipelines.end() ; iter != end; iter++) {
+    for (iter = SelectablePipelines.begin() ; iter != SelectablePipelines.end(); ++iter) {
         if (!(*iter)->GetSelected()) {
             std::cout << "Adding fd " << (*iter)->GetRsockfd() << " to select set" << std::endl;
             (*iter)->SetSelected();
@@ -124,22 +124,15 @@ int BuildIOSelectSet()
 
         if ((*iter)->GetState() == STATE_DISCONNECTED && (*iter)->IsReadyForDeletion()) {
             cout << "BuildIOSelectSet(): found Pipeline for deletion" << endl;
-            //(*iter)->Shutdown();
             PerformShutdown(*iter);
-            /* remove from the vector of open pipelines */
-            for ( iter2 = SelectablePipelines.begin(); iter2 != SelectablePipelines.end(); )
-                if(*iter2 == *iter) {
-                    cout << "Removing pipeline from vector" << endl;
-                    delete * iter2;
-                    iter2 = SelectablePipelines.erase(iter2);
-                }
-                else {
-                    ++iter2;
-                }
+            delete(*iter);
+            *iter = (Pipeline*) NULL;
+            
         } else {
             FD_SET ((*iter)->GetRsockfd(), &socketset);
         }
     }
+    SelectablePipelines.erase(std::remove(SelectablePipelines.begin(), SelectablePipelines.end(), (Pipeline*) NULL), SelectablePipelines.end());
 
     return 1;
 
@@ -214,7 +207,7 @@ int PerformReadIO(Pipeline *p)
                 cout << "--> Marking connected peer for deletion" << endl;
                 nvt_ptr->GetNextPipeline()->SetReadyForDeletion();
                 nvt_ptr->GetNextPipeline()->SetState(STATE_DISCONNECTED);
-                PerformShutdown(nvt_ptr->GetNextPipeline());
+                //PerformShutdown(nvt_ptr->GetNextPipeline());
             } else {
                 cout << "--> EOF on NVT, nothing attached" << endl;
             }
@@ -373,14 +366,13 @@ int RunIOSelectSet()
                 } else {
                     //cout << "[" << r << "] input received" << endl;
                     PerformReadIO(*iter);
+                    /*
                     if ((*iter)->GetState() == STATE_DISCONNECTED && (*iter)->IsReadyForDeletion()) {
                         cout << "Pipeline is unconnected, and marked for deletion, closing" << endl;
-                        // (*iter)->Shutdown();
                         PerformShutdown(*iter);
-                        /* remove from the vector of open pipelines */
                         for ( iter2 = SelectablePipelines.begin(); iter2 != SelectablePipelines.end(); )
                             if(*iter2 == *iter) {
-                                cout << "Removing pipeline from vector" << endl;
+                                cout << "RunIOSelectSet::Removing pipeline from vector" << endl;
                                 delete * iter2;
                                 iter2 = SelectablePipelines.erase(iter2);
                             }
@@ -388,6 +380,7 @@ int RunIOSelectSet()
                                 ++iter2;
                             }
                     } else {
+                    */
                         /* we have a connection, transfer the data */
 
                         Pipeline *s = (*iter);
@@ -420,7 +413,7 @@ int RunIOSelectSet()
                                     }
                                 }
                             }
-                        }
+                     //   }
                     }
                 }
                 break;
