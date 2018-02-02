@@ -9,6 +9,7 @@ using std::endl;
 
 //#define DEBUG_LIFECYCLE
 //#define DEBUG_IO
+//#define DEBUG_PROCESS
 
 Subprocess::Subprocess()
 {
@@ -74,7 +75,9 @@ pid_t Subprocess::StartProcess(const char *path, char **argv)
 
     memset(&transport_path, 0, 2048);
 
+#ifdef DEBUG_PROCESS
     cout << "StartProcess(" << path << ")" << endl;
+#endif /* DEBUG_PROCESS */
     p = pipe(pipes[PARENT_READ_PIPE]);
 //    printf("Create parent read pipe = %d\n", p);
     p = pipe(pipes[PARENT_WRITE_PIPE]);
