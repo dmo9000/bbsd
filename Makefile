@@ -3,6 +3,7 @@ CC = gcc
 
 OBJS =pipeline.o subprocess.o nvt.o
 FLAGS = -std=c++11 -D__LINUX__ -fpermissive -g -ggdb
+LDFLAGS = -static
 
 all: buildtag mainmenu pmain 
 
@@ -10,10 +11,10 @@ buildtag:
 	./build-id.sh && make clean
 
 mainmenu: mainmenu.o $(OBJS) 
-	g++ $(FLAGS) -o $@ mainmenu.o $(OBJS) 
+	g++ $(LDFLAGS) $(FLAGS) -o $@ mainmenu.o $(OBJS) 
 
 pmain: main.o $(OBJS)	
-	g++ $(FLAGS) -o $@ main.o $(OBJS)
+	g++ $(LDFLAGS) $(FLAGS) -o $@ main.o $(OBJS)
 
 %.o: %.cpp
 	g++ -c $(CXX_FLAGS) $(FLAGS) -o $@ $<
