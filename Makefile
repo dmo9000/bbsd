@@ -19,6 +19,8 @@ pmain: main.o $(OBJS)
 %.o: %.cpp
 	g++ -c $(CXX_FLAGS) $(FLAGS) -o $@ $<
 
+docker:
+	docker build -t bbsd .
 
 clean:
 	rm -f pmain mainmenu
