@@ -19,11 +19,17 @@ pmain: main.o $(OBJS)
 %.o: %.cpp
 	g++ -c $(CXX_FLAGS) $(FLAGS) -o $@ $<
 
-docker:
+docker: install
+	rm -rf dockerdata/usr
+	mkdir -p dockerdata/usr/bin
+	mkdir -p dockerdata/usr/local/bbsd
+	cp -rfpv /usr/bin/tdftool dockerdata/usr/bin/tdftool
+	cp -rfpv /usr/local/bbsd/* dockerdata/usr/local/bbsd
 	docker build -t bbsd .
 
 clean:
 	rm -f pmain mainmenu
+	rm -rf dockerdata/usr
 
 install:
 	sudo systemctl stop bbsd 
