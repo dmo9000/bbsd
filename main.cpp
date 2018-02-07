@@ -373,8 +373,15 @@ int RunIOSelectSet()
                     Pipeline *s = (*iter);
                     Pipeline *d = (*iter)->GetNextPipeline();
                     if (!s->GetNextPipeline() || ! d->GetNextPipeline()) {
-                        cout << "Unterminated circuit!" << endl;
-                        exit(1);
+                        cout << "Unterminated circuit! Marking for deletion." << endl;
+												if (s) {
+													s->SetState(STATE_DISCONNECTED);
+													s->SetReadyForDeletion();	
+													}
+											  if (d) {
+													d->SetState(STATE_DISCONNECTED);
+													d->SetReadyForDeletion();
+													}
                     }
                     int r = s->GetRbufsize();
                     int w = 0;
