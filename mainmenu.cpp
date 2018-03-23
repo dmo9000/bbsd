@@ -115,12 +115,15 @@ int main(int argc, char *argv[])
         printf("\r\n");
         }
 
+		/* TODO: figure out whether the client supports UTF-8 automatically */
+
     myargv[0] = (char *) "/usr/bin/tdftool";
-    myargv[1] = (char *) "-f";
-    myargv[2] = (char *) "4";
-    myargv[3] = (char *) "/usr/local/bbsd/fonts/HGSIERAX.TDF";
-    myargv[4] = (char *) "    Intergalactic Software Corp";
-    myargv[5] = NULL;
+    myargv[1] = (char *) "-c";
+    myargv[2] = (char *) "-f";
+    myargv[3] = (char *) "4";
+    myargv[4] = (char *) "/usr/local/bbsd/fonts/HGSIERAX.TDF";
+    myargv[5] = (char *) "    Intergalactic Software Corp";
+    myargv[6] = NULL;
     if (!RunSubprocess(myargv)) {
         cout << endl << "Error: couldn't start process" << endl;
         exit(1);
