@@ -159,6 +159,7 @@ int main(int argc, char *argv[])
         printf("\t4)    Download OEMFONTS.ARC (ZMODEM)\n");
         printf("\t5)    Download OEMIMAGE.ARC (ZMODEM)\n");
         printf("\t6)    Show Monit summary\n");
+        printf("\t7)    Run keystroke tester\n");
         printf("\tQ)    Disconnect\n");
 
         printf("\n");
@@ -212,8 +213,6 @@ int main(int argc, char *argv[])
 
             cout << endl << endl ;
             chdir("/usr/local/bbsd/data");
-            //myargv[0] = (char *) "/usr/bin/epic";
-            //myargv[1] = (char *) "irc.freenode.net";
             myargv[0] = (char *) "/usr/bin/frotz";
             myargv[1] = (char *) "/usr/local/bbsd/data/zork1.z3";
             myargv[2] = NULL;
@@ -299,6 +298,20 @@ int main(int argc, char *argv[])
             cout << endl << endl ;
             //printf("Subprocess returned %d\n", sp);
             break;
+        case 7:
+           cout << endl << endl ;
+            chdir("/usr/local/bbsd");
+            myargv[0] = (char *) "/usr/local/bbsd/keystrokes";
+            myargv[1] = NULL;
+            sp = RunSubprocess(myargv);
+
+            if (!sp) {
+                cout << endl << "Error: couldn't start process" << endl;
+            };
+            cout << endl << endl ;
+            printf("Subprocess returned %d\n", sp);
+            break;
+
         case 0xDEADBEEF:
             cout << endl << endl << endl;
             logoff_requested = true;
