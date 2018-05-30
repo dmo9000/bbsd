@@ -102,8 +102,8 @@ int main(int argc, char *argv[])
 
     /* set stdin to be non blocking */
 
-    flags = fcntl(STDIN_FILENO, F_GETFL, 0);
-    fcntl(STDIN_FILENO, F_SETFL, flags | O_NONBLOCK);
+//    flags = fcntl(STDIN_FILENO, F_GETFL, 0);
+//    fcntl(STDIN_FILENO, F_SETFL, flags | O_NONBLOCK);
 
     memset(&myhostname, 0, 256);
     gethostname((char *) &myhostname, 255);
@@ -130,20 +130,21 @@ int main(int argc, char *argv[])
         printf("Enter some input: ");
         memset(&buffer, 0, 80);
         fgc = fgets((char *) &buffer, 79, stdin);
-        while (!fgc) {
+        while (1) {
             usleep(20000);
-            fgc = fgets((char *) &buffer, 79, stdin);
+            printf("\r\nLength was: %d\r\n", strlen(buffer));
             if (strlen(buffer)) {
-                printf("Length was: %d\n", strlen(buffer));
                 for (int i = 0; i < strlen(buffer); i++) {
                     printf("[%02x:%c] ", buffer[i], ( buffer[i] >=32 && buffer[i] <= 127 ? buffer[i] : '.'));
                 }
-                printf("\n");
+                printf("\r\n");
                 if (strlen(buffer) == 1 && buffer[0] == 0x0a) {
                     goto finished;
                 }
             }
             memset(&buffer, 0, 80);
+            printf("Enter some input: ");
+            fgc = fgets((char *) &buffer, 79, stdin);
         }
     }
 
