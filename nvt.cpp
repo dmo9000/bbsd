@@ -87,8 +87,8 @@ int NVT::pRead()
 #endif /* DEBUG_TELNETOPTIONS */
 
             i += (optsize - 1);
-						 /* we subtract one to line up with the next byte in the stream */
-			
+            /* we subtract one to line up with the next byte in the stream */
+
 
 #ifdef DEBUG_TELNETOPTIONS
             cout << "i now equals: " << i << endl;
@@ -275,9 +275,9 @@ int NVT::IAC_Process(uint8_t *buf)
         break;
     default:
         printf("+++ Unknown or malformed telnet option command! -> %u (0x%02x), ignoring \n", buf[2], buf[2]);
-			  rc = 1;
-				l++;
-				break;
+        rc = 1;
+        l++;
+        break;
     }
 
     if (!rc) {
@@ -328,7 +328,7 @@ int NVT::IAC_Will(uint8_t opt)
         return 2;
         break;
     default:
-        /* send IAC_DONT for anything not explicitly supported */ 
+        /* send IAC_DONT for anything not explicitly supported */
         printf("+++ SENDING IAC_DONT(0x%02x) [UNSUPPORTED]\n", opt);
         IAC_Dont(opt);
         return 2;
@@ -389,7 +389,7 @@ int NVT::IAC_Do(uint8_t opt)
 #endif /* DEBUG_TELNETOPTIONS */
 
     switch(opt) {
-    
+
     case BINARY:
         server_do_binary = true;
         cout << ">RCVD DO BINARY\n";
@@ -420,9 +420,9 @@ int NVT::IAC_Do(uint8_t opt)
         cout << ">RCVD DO WINDOWSIZE\n";
         IAC_Wont(WINDOWSIZE);
         return 2;
-				break;
+        break;
     case SUPPRESSGOAHEAD:
-        server_will_suppressgoahead = true; 
+        server_will_suppressgoahead = true;
         cout << ">RCVD DO SUPPRESS GOAHEAD\n";
         IAC_Will(SUPPRESSGOAHEAD);
         return 2;

@@ -5,13 +5,16 @@ OBJS =pipeline.o subprocess.o nvt.o
 FLAGS = -std=c++11 -D__LINUX__ -fpermissive -g -ggdb
 LDFLAGS = -static
 
-all: buildtag mainmenu pmain 
+all: buildtag mainmenu keystrokes pmain 
 
 buildtag:
 	./build-id.sh && make clean
 
 mainmenu: mainmenu.o $(OBJS) 
 	g++ $(LDFLAGS) $(FLAGS) -o $@ mainmenu.o $(OBJS) 
+
+keystrokes: keystrokes.o $(OBJS) 
+	g++ $(LDFLAGS) $(FLAGS) -o $@ keystrokes.o $(OBJS) 
 
 pmain: main.o $(OBJS)	
 	g++ $(LDFLAGS) $(FLAGS) -o $@ main.o $(OBJS)
@@ -28,7 +31,7 @@ docker: install
 	docker build -t bbsd .
 
 clean:
-	rm -f pmain mainmenu
+	rm -f pmain mainmenu keystrokes *.o 
 	rm -rf dockerdata/usr
 
 install:

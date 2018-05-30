@@ -16,13 +16,13 @@ Subprocess::Subprocess()
 #ifdef DEBUG_LIFECYCLE
     cout << "Subprocess created" << endl;
 #endif /* DEBUG_LIFECYCLE */
-		SetStartTime(time(NULL));
+    SetStartTime(time(NULL));
 }
 
 Subprocess::~Subprocess()
 {
 #ifdef DEBUG_LIFECYCLE
-   cout << "Subprocess destroyed" << endl;
+    cout << "Subprocess destroyed" << endl;
 #endif /* DEBUG_LIFECYCLE */
 }
 
@@ -148,7 +148,7 @@ void Subprocess::Shutdown()
     pid_t c = 0;
     int wstatus;
 //    int options = WNOHANG;				/* can introduce zombies, because we don't come back later to try again if the child has not exited immediately */
-		int options = 0;
+    int options = 0;
     cout << "+++ Subprocess:Shutdown()" << endl;
     Pipeline::Shutdown();
     cout << "  - reaping child pid " << child_pid << endl;

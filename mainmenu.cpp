@@ -113,7 +113,7 @@ int main(int argc, char *argv[])
 
     for (ii = 0 ; ii < 8; ii++) {
         printf("\r\n");
-        }
+    }
 
     myargv[0] = (char *) "/usr/bin/tdftool";
     myargv[1] = (char *) "-f";
@@ -136,8 +136,8 @@ int main(int argc, char *argv[])
     ioctl(STDOUT_FILENO,TIOCSWINSZ,&size);
     ioctl(STDOUT_FILENO,TIOCGWINSZ,&size);
 
-    snprintf((char *) &justify_buf, JUSTIFY_BUFSIZE, "Terminal type is %s:%dx%d\n\n", 
-            (const char *) terminal_type, size.ws_col, size.ws_row, size.ws_xpixel, size.ws_ypixel);
+    snprintf((char *) &justify_buf, JUSTIFY_BUFSIZE, "Terminal type is %s:%dx%d\n\n",
+             (const char *) terminal_type, size.ws_col, size.ws_row, size.ws_xpixel, size.ws_ypixel);
     justify_text(size.ws_col, (char *) &justify_buf);
 
     snprintf((char *) &justify_buf, JUSTIFY_BUFSIZE, "You are connected on node [%s] via gateway [%s]\n", myhostname, router_hostname);
