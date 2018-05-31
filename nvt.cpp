@@ -1,6 +1,7 @@
 #include <iostream>
 #include <fcntl.h>
 #include <time.h>
+#include <assert.h>
 #include "nvt.h"
 using std::cout;
 using std::endl;
@@ -52,6 +53,7 @@ int NVT::pRead()
     uint16_t i = 0;
     uint16_t o = 0;
     int optsize = 0;
+    bool crflag = false;
 
     ptr = GetReadBuffer();
 #ifdef DEBUG_IO
@@ -66,6 +68,42 @@ int NVT::pRead()
     r = Pipeline::pRead();
 
     rsize = GetRbufsize();
+
+    /* scan for CRLF and convert to LF */
+
+    for (i = 0; i < rsize ; i++) {
+        ptr = GetReadBuffer() + i;
+        switch (ptr[0]) {
+            case '\r':
+                printf("carriage return!\n");
+                crflag = true;
+                break;
+            case '\n':
+                printf("line feed!\n");
+                if (!crflag) {
+                    printf("line feed without preceding CR\n");
+                    assert(NULL);
+                    } 
+                /* FIXME: optimize to memmove() */
+                for (int j = i;  j < rsize; j++) {
+                    ptr[0] = ptr[1];
+                    }
+                SetRbufsize(GetRbufsize() - 1);
+                rsize = GetRbufsize();
+                printf("truncated CRLF to LF\n");
+                /* FIXME: looks bad, even if it's not dangerous. find a more graceful way to do this */
+                ptr[-1] = '\n';
+                crflag = false;
+                break;
+            default:
+                if (crflag) {
+                    printf("CR followed by non-LF character\n");
+                    assert(NULL);
+                    }
+                /* do nothing */
+                break;
+                }
+        }
 
     /* scan for IAC */
 
