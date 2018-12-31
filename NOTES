@@ -1,4 +1,10 @@
-No more zombies. 
+Double check for zombies. 
+
+Use forkpty() in the future to allocate a PTY.
+
+Consider a rewrite in Rust?
+
+Would it be better to avoid multiplexing multiple telnet sessions into a single process in the first place. 
 
 
 
